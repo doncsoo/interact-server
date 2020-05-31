@@ -8,14 +8,13 @@ queryDatabase = (query) =>
         connectionString: process.env.DATABASE_URL
     });
     
-    stuff = undefined;  
+    stuff = null;  
     pool.connect()
        .then(client => {
         return client
           .query(query)
           .then(res => {
             client.release()
-            console.log(res.rows[0])
             stuff = res.rows;
           })
           .catch(err => {
@@ -34,7 +33,8 @@ app.get('/', function(req, res){
 
 app.get('/testsql', function(req,res){
     resp = queryDatabase('SELECT * FROM test')
-    res.send(resp);
+    console.log(resp)
+    res.send(JSON.stringify(resp));
 });
 
 app.listen(process.env.PORT || 3000);
