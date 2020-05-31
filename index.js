@@ -14,7 +14,9 @@ const queryDatabase = (query) =>
     client.connect();
     stuff = undefined;
     client.query(query, (err, res) => {
-        if (err) throw err;
+        if (err) {
+           console.log("Something bad happened while querying....")
+        }
         stuff = res.rows;
     });
     client.end();
