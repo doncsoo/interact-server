@@ -32,7 +32,7 @@ app.get('/', function(req, res){
     res.send("Backend teszt! Egyenlőre csak database testing.");
  });
 
-app.get('/testsql', function(req,res){
+app.get('/testsql', async function(req,res){
     resp = await queryDatabase('SELECT * FROM test')
     console.log(resp)
     res.send(JSON.stringify(resp));
