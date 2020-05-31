@@ -15,9 +15,9 @@ app.get('/testsql', async function(req,res){
        .then(client => {
         return client
           .query('SELECT * FROM test')
-          .then(res => {
+          .then(r => {
             client.release()
-            console.log(res.rows);
+            console.log(r.rows);
           })
           .then(r => console.log(r))
           .then(r => res.send(JSON.stringify(r)))
