@@ -27,7 +27,8 @@ app.get('/', function(req, res){
 
 app.get('/testsql', function(req,res){
     resp = queryDatabase('SELECT * FROM test')
-    res.send();
+    setTimeout(5000)
+    res.send(resp);
 });
 
 app.listen(process.env.PORT || 3000);
