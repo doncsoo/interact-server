@@ -2,7 +2,7 @@ const express = require('express')
 const { Client, Pool } = require('pg');
 var app = express()
 
-queryDatabase = (query) =>
+queryDatabase = async(query) =>
 {
     const pool = new Pool({
         connectionString: process.env.DATABASE_URL
@@ -16,16 +16,16 @@ queryDatabase = (query) =>
           .then(res => {
             client.release()
             console.log(res.rows);
-            stuff = res.rows;
+            return res.rows;
           })
           .catch(err => {
             client.release()
             console.log(err.stack)
+            return null;
           })
       })
     
     pool.end()
-    return stuff;
 }
 
 app.get('/', function(req, res){
@@ -33,7 +33,7 @@ app.get('/', function(req, res){
  });
 
 app.get('/testsql', function(req,res){
-    resp = queryDatabase('SELECT * FROM test')
+    resp = await queryDatabase('SELECT * FROM test')
     console.log(resp)
     res.send(JSON.stringify(resp));
 });
