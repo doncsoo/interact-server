@@ -24,7 +24,7 @@ queryDatabase = async(query) =>
           })
       })
     
-    pool.end()
+    await pool.end()
 }
 
 app.get('/', function(req, res){
