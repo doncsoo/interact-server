@@ -2,7 +2,7 @@ const express = require('express')
 const { Client } = require('pg');
 var app = express()
 
-queryDatabase(query)
+const queryDatabase = (query) =>
 {
     const client = new Client({
         connectionString: process.env.DATABASE_URL,
