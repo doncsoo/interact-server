@@ -7,8 +7,7 @@ queryDatabase = async(query) =>
     const pool = new Pool({
         connectionString: process.env.DATABASE_URL
     });
-    
-    stuff = null;  
+     
     pool.connect()
        .then(client => {
         return client
@@ -34,8 +33,8 @@ app.get('/', function(req, res){
 
 app.get('/testsql', async function(req,res){
     resp = await queryDatabase('SELECT * FROM test')
-    console.log(resp)
-    res.send(JSON.stringify(resp));
+    .then(console.log(resp))
+    .then(res.send(JSON.stringify(resp)));
 });
 
 app.listen(process.env.PORT || 3000);
