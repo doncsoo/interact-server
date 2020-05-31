@@ -8,7 +8,7 @@ queryDatabase = async(query) =>
         connectionString: process.env.DATABASE_URL
     });
      
-    pool.connect()
+    await pool.connect()
        .then(client => {
         return client
           .query(query)
