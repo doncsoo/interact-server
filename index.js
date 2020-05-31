@@ -17,10 +17,9 @@ app.get('/testsql', async function(req,res){
           .query('SELECT * FROM test')
           .then(r => {
             client.release()
-            console.log(r.rows);
+            console.log(r.rows)
+            res.send(JSON.stringify(r.rows))
           })
-          .then(r => console.log(r))
-          .then(r => res.send(JSON.stringify(r)))
           .catch(err => {
             client.release()
             console.log(err.stack)
