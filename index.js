@@ -11,16 +11,14 @@ const queryDatabase = (query) =>
         }
       });
       
-      client.connect();
-      
-      client.query(query, (err, res) => {
+    client.connect();
+    stuff = undefined;
+    client.query(query, (err, res) => {
         if (err) throw err;
-        /*for (let row of res.rows) {
-          console.log(JSON.stringify(row));
-        }*/
-        return JSON.stringify(res.rows);
-        client.end();
-      });
+        stuff = res.rows;
+    });
+    client.end();
+    return stuff;
 }
 
 app.get('/', function(req, res){
@@ -31,4 +29,4 @@ app.get('/testsql', function(req,res){
     res.send(queryDatabase('SELECT * FROM test'));
 });
 
-app.listen(process.env.PORT || 3000)
+app.listen(process.env.PORT || 3000);
