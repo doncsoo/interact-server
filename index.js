@@ -15,6 +15,7 @@ queryDatabase = (query) =>
           .query(query)
           .then(res => {
             client.release()
+            console.log(res.rows[0])
             stuff = res.rows;
           })
           .catch(err => {
