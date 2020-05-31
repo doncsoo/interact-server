@@ -15,7 +15,7 @@ const queryDatabase = (query) =>
     stuff = undefined;
     client.query(query)
           .then(res => stuff = res.rows)
-          .catch(e => console.log("Something bad happened while querying...."))
+          .catch(e => console.error(e))
 
     client.end();
     return stuff;
@@ -26,7 +26,8 @@ app.get('/', function(req, res){
  });
 
 app.get('/testsql', function(req,res){
-    res.send(queryDatabase('SELECT * FROM test'));
+    resp = queryDatabase('SELECT * FROM test')
+    res.send();
 });
 
 app.listen(process.env.PORT || 3000);
