@@ -32,9 +32,9 @@ app.get('/', function(req, res){
  });
 
 app.get('/testsql', async function(req,res){
-    resp = await queryDatabase('SELECT * FROM test')
-    .then(console.log(resp))
-    .then(res.send(JSON.stringify(resp)));
+    await queryDatabase('SELECT * FROM test')
+    .then(r => console.log(r))
+    .then(r => res.send(JSON.stringify(r)));
 });
 
 app.listen(process.env.PORT || 3000);
