@@ -13,12 +13,10 @@ const queryDatabase = (query) =>
       
     client.connect();
     stuff = undefined;
-    client.query(query, (err, res) => {
-        if (err) {
-           console.log("Something bad happened while querying....")
-        }
-        stuff = res.rows;
-    });
+    client.query(query)
+          .then(res => stuff = res.rows)
+          .catch(e => console.log("Something bad happened while querying...."))
+
     client.end();
     return stuff;
 }
