@@ -1,23 +1,29 @@
 const express = require('express')
-const { Client } = require('pg');
+const { Client, Pool } = require('pg');
 var app = express()
 
-const queryDatabase = (query) =>
+queryDatabase = (query) =>
 {
-    const client = new Client({
-        connectionString: process.env.DATABASE_URL,
-        ssl: {
-          rejectUnauthorized: false
-        }
-      });
-      
-    client.connect();
-    stuff = undefined;
-    client.query(query)
-          .then(res => stuff = res.rows)
-          .catch(e => console.error(e))
-
-    client.end();
+    const pool = new Pool({
+        connectionString: process.env.DATABASE_URL
+    });
+    
+    stuff = undefined;  
+    pool.connect()
+       .then(client => {
+        return client
+          .query(query)
+          .then(res => {
+            client.release()
+            stuff = res.rows;
+          })
+          .catch(err => {
+            client.release()
+            console.log(err.stack)
+          })
+      })
+    
+    pool.end()
     return stuff;
 }
 
@@ -27,7 +33,6 @@ app.get('/', function(req, res){
 
 app.get('/testsql', function(req,res){
     resp = queryDatabase('SELECT * FROM test')
-    setTimeout(5000)
     res.send(resp);
 });
 
