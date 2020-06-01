@@ -52,6 +52,7 @@ app.get('/upload-video', (req, res) => {
       console.log(err);
       return res.send("Upload failed");
     }
+    console.log(data)
     const returnData = {
       signedRequest: data,
       url: `https://${process.env.S3_BUCKET}.s3.amazonaws.com/${fileName}`
