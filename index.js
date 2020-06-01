@@ -6,8 +6,6 @@ var app = express()
 
 app.use(cors())
 
-const S3_BUCKET = process.env.S3_BUCKET;
-
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL
 });
@@ -37,13 +35,17 @@ app.get('/upload-video', (req, res) => {
   const s3 = new aws.S3();
   const fileName = req.query['file-name'];
   const fileType = req.query['file-type'];
-  const s3Params = {
-    Bucket: S3_BUCKET,
+  var s3Params = {
+    Bucket: process.env.S3_BUCKET,
     Key: fileName,
     Expires: 60,
     ContentType: fileType,
     ACL: 'public-read'
   };
+
+  console.log(fileName)
+  console.log(fileType)
+  console.log(s3Params)
 
   s3.getSignedUrl('putObject', s3Params, (err, data) => {
     if(err){
