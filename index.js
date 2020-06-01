@@ -1,7 +1,10 @@
 const express = require('express')
 const aws = require('aws-sdk');
+const cors = require('cors');
 const { Client, Pool } = require('pg');
 var app = express()
+
+app.use(cors())
 
 const S3_BUCKET = process.env.S3_BUCKET;
 
