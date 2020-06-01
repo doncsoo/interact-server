@@ -57,7 +57,7 @@ app.get('/upload-video', (req, res) => {
       signedRequest: data,
       url: `https://${process.env.S3_BUCKET}.s3.amazonaws.com/${fileName}`
     };
-    res.json(returnData);
+    res.send(returnData);
   });
 });
 
