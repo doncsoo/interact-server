@@ -9,6 +9,7 @@
   "author": "Kiss Donát",
   "license": "ISC",
   "dependencies": {
+    "aws-sdk": "^2.686.0",
     "express": "^4.17.1",
     "pg": "^8.2.1"
   }
