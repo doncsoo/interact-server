@@ -32,7 +32,7 @@ app.get('/testsql', async function(req,res){
 });
 
 app.get('/upload-video', (req, res) => {
-  const s3 = new aws.S3();
+  const s3 = new aws.S3({region:"eu-central-1"});
   const fileName = req.query['file-name'];
   const fileType = req.query['file-type'];
   var s3Params = {
