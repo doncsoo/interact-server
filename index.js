@@ -5,8 +5,6 @@ var app = express()
 
 const S3_BUCKET = process.env.S3_BUCKET;
 
-app.use(express.bodyParser())
-
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL
 });
