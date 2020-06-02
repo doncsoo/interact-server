@@ -85,7 +85,7 @@ app.post('/insert-video', async function(req, res){
   await pool.connect()
        .then(client => {
         return client
-          .query('INSERT INTO TABLE_NAME (id,name,description,tree_id) VALUES ($1,$2,$3,$4)',[video_id,video_name,video_desc,video_treeid])
+          .query('INSERT INTO videos (id,name,description,tree_id) VALUES ($1,$2,$3,$4)',[video_id,video_name,video_desc,video_treeid])
           .then(r => {
             client.release()
             res.send("Video upload succeeded")
