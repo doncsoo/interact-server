@@ -60,7 +60,7 @@ app.get('/upload-verify', (req, res) => {
   });
 });
 
-app.post('/insert-video', function(req, res){
+app.post('/insert-video', async function(req, res){
   video_data = req.body;
   console.log(req.body);
   video_name = video_data.name;
