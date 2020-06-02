@@ -98,4 +98,20 @@ app.post('/insert-video', async function(req, res){
   
 });
 
+app.get('/get-videos', async function(req,res){
+  await pool.connect()
+     .then(client => {
+      return client
+        .query('SELECT * FROM videos')
+        .then(r => {
+          client.release()
+          res.send(r.rows)
+        })
+        .catch(err => {
+          client.release()
+          console.log(err.stack)
+        })
+    })
+});
+
 app.listen(process.env.PORT || 3000);
