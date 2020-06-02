@@ -1,10 +1,13 @@
 const express = require('express')
 const aws = require('aws-sdk');
 const cors = require('cors');
+const bodyParser = require('body-parser');
 const { Client, Pool } = require('pg');
 var app = express()
 
 app.use(cors())
+
+app.use(bodyParser.json())
 
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL
@@ -31,7 +34,7 @@ app.get('/testsql', async function(req,res){
       })
 });
 
-app.get('/upload-video', (req, res) => {
+app.get('/upload-verify', (req, res) => {
   const s3 = new aws.S3({region:"eu-central-1"});
   const fileName = req.query['file-name'];
   const fileType = req.query['file-type'];
@@ -42,10 +45,6 @@ app.get('/upload-video', (req, res) => {
     ContentType: fileType,
     ACL: 'public-read'
   };
-
-  console.log(fileName)
-  console.log(fileType)
-  console.log(s3Params)
 
   s3.getSignedUrl('putObject', s3Params, (err, data) => {
     if(err){
@@ -59,6 +58,44 @@ app.get('/upload-video', (req, res) => {
     };
     res.send(returnData);
   });
+});
+
+app.post('/insert-video', function(req, res){
+  video_data = req.body;
+  console.log(req.body);
+  video_name = video_data.name;
+  video_desc = video_data.desc;
+  video_treeid = video_data.treeid;
+  video_id = null;
+  //generating url based on row count
+  await pool.connect()
+       .then(client => {
+        return client
+          .query('SELECT COUNT(*) FROM videos')
+          .then(r => {
+            client.release()
+            video_id = r.rows[0].count;
+          })
+          .catch(err => {
+            client.release()
+            console.log(err.stack)
+          })
+      })
+  //inserting new row
+  await pool.connect()
+       .then(client => {
+        return client
+          .query('INSERT INTO TABLE_NAME (id,name,description,tree_id) VALUES ($1,$2,$3,$4)',[video_id,video_name,video_desc,video_treeid])
+          .then(r => {
+            client.release()
+            res.send("Video upload succeeded")
+          })
+          .catch(err => {
+            client.release()
+            console.log(err.stack)
+          })
+      })
+  
 });
 
 app.listen(process.env.PORT || 3000);
