@@ -14,25 +14,8 @@ const pool = new Pool({
 });
 
 app.get('/', function(req, res){
-    res.send("Backend teszt! Egyenlőre csak database testing.");
+    res.redirect('http://interact-client.herokuapp.com/')
  });
-
-app.get('/testsql', async function(req,res){
-    await pool.connect()
-       .then(client => {
-        return client
-          .query('SELECT * FROM test')
-          .then(r => {
-            client.release()
-            console.log(r.rows)
-            res.send(JSON.stringify(r.rows))
-          })
-          .catch(err => {
-            client.release()
-            console.log(err.stack)
-          })
-      })
-});
 
 app.get('/upload-verify', (req, res) => {
   const s3 = new aws.S3({region:"eu-central-1"});
@@ -85,7 +68,7 @@ app.post('/insert-video', async function(req, res){
   await pool.connect()
        .then(client => {
         return client
-          .query('INSERT INTO videos (id,name,description,tree_id) VALUES ($1,$2,$3,$4)',[video_id,video_name,video_desc,video_treeid])
+          .query('INSERT INTO videos (id,name,description,tree_id,owner,preview_id) VALUES ($1,$2,$3,$4,$5,$6)',[video_id,video_name,video_desc,video_treeid,video_owner,video_preview_id])
           .then(r => {
             client.release()
             res.send("Video upload succeeded")
