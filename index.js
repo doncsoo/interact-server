@@ -97,4 +97,30 @@ app.get('/get-videos', async function(req,res){
     })
 });
 
+app.post('/user-verify', async function(req, res){
+  user_data = req.body;
+  console.log(req.body);
+  username = user_data.username;
+  password = user_data.password;
+  //querying password
+  await pool.connect()
+       .then(client => {
+        return client
+          .query('SELECT password FROM users WHERE username = $1',[username])
+          .then(r => {
+            client.release()
+            if(password == r.rows[0].password)
+            {
+              res.send("User verified! Insert token sending stuff here")
+            }
+            else res.send("Invalid password")
+          })
+          .catch(err => {
+            client.release()
+            console.log(err.stack)
+          })
+      })
+  
+});
+
 app.listen(process.env.PORT || 3000);
