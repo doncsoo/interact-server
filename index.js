@@ -46,6 +46,7 @@ app.get('/upload-verify', (req, res) => {
 app.post('/insert-video', async function(req, res){
   video_data = req.body;
   console.log(req.body);
+  if(req.body == {}) res.status(400).send("Empty request body. Cancelling request.");
   video_name = video_data.name;
   video_desc = video_data.desc;
   video_treeid = video_data.treeid;
@@ -100,7 +101,7 @@ app.get('/get-videos', async function(req,res){
 app.post('/user-verify', async function(req, res){
   user_data = req.body;
   console.log(req.body);
-  if(!req.body) res.send("Empty request body. Cancelling request.");
+  if(req.body == {}) res.status(400).send("Empty request body. Cancelling request.");
   username = user_data.username;
   password = user_data.password;
   //querying password
