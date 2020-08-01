@@ -100,6 +100,7 @@ app.get('/get-videos', async function(req,res){
 app.post('/user-verify', async function(req, res){
   user_data = req.body;
   console.log(req.body);
+  if(!req.body) res.send("Empty request body. Cancelling request.");
   username = user_data.username;
   password = user_data.password;
   //querying password
