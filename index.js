@@ -117,7 +117,6 @@ app.post('/user-verify', async function(req, res){
             else res.send("Invalid password")
           })
           .catch(err => {
-            client.release()
             console.log(err.stack)
           })
       })
