@@ -124,4 +124,44 @@ app.post('/user-verify', async function(req, res){
   
 });
 
+app.post('/register', async function(req, res){
+  user_data = req.body;
+  console.log(req.body);
+  if(req.body == {}) res.status(400).send("Empty request body. Cancelling request.");
+  username = user_data.username;
+  password = user_data.password;
+  fullname = user_data.fullname;
+  user_id = null;
+  //getting id
+  await pool.connect()
+       .then(client => {
+        return client
+          .query('SELECT COUNT(*) FROM users')
+          .then(r => {
+            client.release()
+            user_id = r.rows[0].count;
+          })
+          .catch(err => {
+            client.release()
+            console.log(err.stack)
+          })
+      })
+  //inserting new row
+  await pool.connect()
+       .then(client => {
+        return client
+          .query('INSERT INTO users (id,username,password,fullname) VALUES ($1,$2,$3,$4)',[user_id,username,password,fullname])
+          .then(r => {
+            client.release()
+            res.send("Registration successful!")
+          })
+          .catch(err => {
+            client.release()
+            console.log(err.stack)
+            res.send("An error occurred")
+          })
+      })
+  
+});
+
 app.listen(process.env.PORT || 3000);
