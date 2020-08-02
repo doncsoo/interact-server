@@ -150,7 +150,7 @@ app.post('/register', async function(req, res){
   await pool.connect()
        .then(client => {
         return client
-          .query('INSERT INTO users (id,username,password,fullname) VALUES ($1,$2,$3,$4)',[user_id,username,password,fullname])
+          .query('INSERT INTO users (id,username,password,fullname,isadmin) VALUES ($1,$2,$3,$4,FALSE)',[user_id,username,password,fullname])
           .then(r => {
             client.release()
             res.send("Registration successful!")
