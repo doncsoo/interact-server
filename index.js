@@ -98,6 +98,42 @@ app.get('/get-videos', async function(req,res){
     })
 });
 
+app.post('/interaction-addlike', async function(req, res){
+  like_data = req.body;
+  console.log(req.body);
+  if(req.body == {}) res.status(400).send("Empty request body. Cancelling request.");
+  username = like_data.username;
+  video_id = like_data.video_id;
+  //adding like
+  await pool.connect()
+       .then(client => {
+        return client
+          .query('UPDATE likes_data SET likes = array_append(likes, $2) WHERE username = $1;',[username,video_id])
+          .then(r => {
+            client.release()
+          })
+          .catch(err => {
+            console.log(err.stack)
+            res.send("ERROR")
+            return;
+          })
+      })
+  await pool.connect()
+      .then(client => {
+       return client
+         .query('UPDATE videos SET likes = likes + 1 WHERE id = $1;',[video_id])
+         .then(r => {
+           client.release()
+           res.send("OK")
+         })
+         .catch(err => {
+           console.log(err.stack)
+           res.send("ERROR")
+         })
+     })
+  
+});
+
 app.post('/user-verify', async function(req, res){
   user_data = req.body;
   console.log(req.body);
@@ -153,13 +189,28 @@ app.post('/register', async function(req, res){
           .query('INSERT INTO users (id,username,password,fullname,isadmin) VALUES ($1,$2,$3,$4,FALSE)',[user_id,username,password,fullname])
           .then(r => {
             client.release()
-            res.send("Registration successful!")
           })
           .catch(err => {
             client.release()
             console.log(err.stack)
             if(err.code === "23505") res.send("Error: This username already exists")
             else res.send("An unknown error occurred")
+            return;
+          })
+      })
+  //inserting new row in likes_data
+  await pool.connect()
+       .then(client => {
+        return client
+          .query('INSERT INTO likes_data (username) VALUES ($1)',[username])
+          .then(r => {
+            client.release()
+            res.send("Registration successful!")
+          })
+          .catch(err => {
+            client.release()
+            console.log(err.stack)
+            res.send("An unknown error occurred")
           })
       })
   
