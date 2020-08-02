@@ -158,7 +158,8 @@ app.post('/register', async function(req, res){
           .catch(err => {
             client.release()
             console.log(err.stack)
-            res.send("An error occurred")
+            if(err.code == 23503) res.send("Error: This username already exists")
+            else res.send("An unknown error occurred")
           })
       })
   
