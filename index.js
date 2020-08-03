@@ -82,11 +82,13 @@ app.post('/insert-video', async function(req, res){
   
 });
 
-app.get('/get-videos', async function(req,res){
+app.get('/get-videos/:owner', async function(req,res){
+  if(req.params.owner == "all") query = 'SELECT * FROM videos';
+  else query = 'SELECT * FROM videos WHERE owner = ' + req.params.owner;
   await pool.connect()
      .then(client => {
       return client
-        .query('SELECT * FROM videos')
+        .query(query)
         .then(r => {
           client.release()
           res.send(r.rows)
