@@ -83,12 +83,12 @@ app.post('/insert-video', async function(req, res){
 });
 
 app.get('/get-videos/:owner', async function(req,res){
-  if(req.params.owner == "all") query = 'SELECT * FROM videos';
-  else query = 'SELECT * FROM videos WHERE owner = ' + req.params.owner;
-  await pool.connect()
+  if(req.params.owner == "all")
+  {
+    await pool.connect()
      .then(client => {
       return client
-        .query(query)
+        .query('SELECT * FROM videos')
         .then(r => {
           client.release()
           res.send(r.rows)
@@ -98,6 +98,24 @@ app.get('/get-videos/:owner', async function(req,res){
           console.log(err.stack)
         })
     })
+  }
+  else
+  {
+    await pool.connect()
+     .then(client => {
+      return client
+        .query('SELECT * FROM videos WHERE owner = $1',[req.params.owner])
+        .then(r => {
+          client.release()
+          res.send(r.rows)
+        })
+        .catch(err => {
+          client.release()
+          console.log(err.stack)
+        })
+    })
+  }
+  
 });
 
 app.post('/interaction-addlike', async function(req, res){
