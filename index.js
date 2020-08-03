@@ -82,6 +82,23 @@ app.post('/insert-video', async function(req, res){
   
 });
 
+app.get('/get-video/:id', async function(req,res) {
+    await pool.connect()
+     .then(client => {
+      return client
+        .query('SELECT * FROM videos WHERE id = $1',[req.params.id])
+        .then(r => {
+          client.release()
+          res.send(r.rows[0])
+        })
+        .catch(err => {
+          client.release()
+          console.log(err.stack)
+        })
+    })
+  
+});
+
 app.get('/get-videos/:owner', async function(req,res){
   if(req.params.owner == "all")
   {
