@@ -184,7 +184,7 @@ app.post('/user-verify', async function(req, res){
           .query('SELECT password FROM users WHERE username = $1',[username])
           .then(r => {
             client.release()
-            if(r.rowCount == 0)
+            if(r.rows.length == 0)
             {
               res.send("This following user doesn't exist")
             }
