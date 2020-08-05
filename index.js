@@ -184,7 +184,11 @@ app.post('/user-verify', async function(req, res){
           .query('SELECT password FROM users WHERE username = $1',[username])
           .then(r => {
             client.release()
-            if(password == r.rows[0].password)
+            if(r.rowCount == 0)
+            {
+              res.send("This following user doesn't exist")
+            }
+            else if(password == r.rows[0].password)
             {
               res.send("User verified! Insert token sending stuff here")
             }
