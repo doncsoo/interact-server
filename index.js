@@ -9,6 +9,9 @@ app.use(cors())
 
 app.use(bodyParser.json())
 
+const fs = require('fs');
+const token_data = require('./tokendata.json')
+
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL
 });
@@ -188,6 +191,12 @@ app.post('/interaction-addlike', async function(req, res){
   
 });
 
+function addToken(tokenobj)
+{
+  token_data.tokens.push(tokenobj)
+  fs.writeFile('tokendata.json', JSON.stringify(token_data))
+}
+
 app.post('/user-verify', async function(req, res){
   user_data = req.body;
   console.log(req.body);
@@ -203,13 +212,15 @@ app.post('/user-verify', async function(req, res){
             client.release()
             if(r.rows.length == 0)
             {
-              res.send("This following user doesn't exist")
+              res.json({verified: false, error: "This following user doesn't exist"})
             }
             else if(password == r.rows[0].password)
             {
-              res.send("User verified! Insert token sending stuff here")
+              let gen_token = Math.floor(Math.random() * (9999999999) + 1000000000);
+              addToken({username: username, token: gen_token});
+              res.json({verified: true, token: gen_token})
             }
-            else res.send("Invalid password")
+            else res.json({verified: false, error: "Invalid password"})
           })
           .catch(err => {
             console.log(err.stack)
