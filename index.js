@@ -194,7 +194,7 @@ app.post('/interaction-addlike', async function(req, res){
 function addToken(tokenobj)
 {
   token_data.tokens.push(tokenobj)
-  fs.writeFile('tokendata.json', JSON.stringify(token_data))
+  fs.writeFile('tokendata.json', JSON.stringify(token_data), function() {console.log("stored")});
 }
 
 app.post('/user-verify', async function(req, res){
