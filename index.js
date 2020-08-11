@@ -146,27 +146,14 @@ app.get('/get-fav-videos/:owner', async function(req,res){
      .query('SELECT likes FROM likes_data WHERE username = $1',[req.params.owner])
      .then(r => {
        client.release()
-       if(r.rows[0].likes = "{}") res.json([])
+       let resp = r.rows[0].replace("{","[").replace("}","]")
+       res.send(resp)
      })
      .catch(err => {
        client.release()
        console.log(err.stack)
      })
  })
-    await pool.connect()
-     .then(client => {
-      return client
-        .query('SELECT * FROM videos WHERE id = ANY(ARRAY(SELECT likes FROM likes_data WHERE username = $1))',[req.params.owner])
-        .then(r => {
-          client.release()
-          res.send(r.rows)
-        })
-        .catch(err => {
-          client.release()
-          console.log(err.stack)
-        })
-    })
-  
 });
 
 app.post('/interaction-addlike', async function(req, res){
