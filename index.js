@@ -146,7 +146,7 @@ app.get('/get-fav-videos/:owner', async function(req,res){
      .query('SELECT likes FROM likes_data WHERE username = $1',[req.params.owner])
      .then(r => {
        client.release()
-       let resp = r.rows[0].replace("{","[").replace("}","]")
+       let resp = r.rows[0].likes.replace("{","[").replace("}","]")
        res.send(resp)
      })
      .catch(err => {
