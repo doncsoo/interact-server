@@ -150,7 +150,6 @@ app.get('/get-fav-videos/:owner', async function(req,res){
        res.send(resp)
      })
      .catch(err => {
-       client.release()
        console.log(err.stack)
      })
  })
