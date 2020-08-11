@@ -156,12 +156,25 @@ app.get('/get-fav-videos/:owner', async function(req,res){
  })
 });
 
+function verifyUser(recv_token)
+{
+  let tokens = token_data.tokens;
+  for(let i = 0; i < tokens.length; i++)
+  {
+    if(tokens[i].token == recv_token) return tokens[i].username;
+  }
+
+  return null;
+}
+
 app.post('/interaction-addlike', async function(req, res){
+
   like_data = req.body;
-  console.log(req.body);
   if(req.body == {}) res.status(400).send("Empty request body. Cancelling request.");
-  username = like_data.username;
+  username = verifyUser(like_data.token);
   video_id = like_data.video_id;
+  //if invalid token
+  if(!username) res.send("ERROR")
   //adding like
   await pool.connect()
        .then(client => {
