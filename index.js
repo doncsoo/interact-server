@@ -139,6 +139,20 @@ app.get('/get-videos/:owner', async function(req,res){
 });
 
 app.get('/get-fav-videos/:owner', async function(req,res){
+  //check if likes are not empty array
+  await pool.connect()
+  .then(client => {
+   return client
+     .query('SELECT likes FROM likes_data WHERE username = $1',[req.params.owner])
+     .then(r => {
+       client.release()
+       if(r.rows[0].likes = "{}") res.json([])
+     })
+     .catch(err => {
+       client.release()
+       console.log(err.stack)
+     })
+ })
     await pool.connect()
      .then(client => {
       return client
