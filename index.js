@@ -203,6 +203,44 @@ app.post('/interaction-addlike', async function(req, res){
   
 });
 
+app.post('/interaction-removelike', async function(req, res){
+
+  like_data = req.body;
+  if(req.body == {}) res.status(400).send("Empty request body. Cancelling request.");
+  username = verifyUser(like_data.token);
+  video_id = like_data.video_id;
+  //if invalid token
+  if(!username) res.send("ERROR")
+  //adding like
+  await pool.connect()
+       .then(client => {
+        return client
+          .query('UPDATE likes_data SET likes = array_remove(likes, $2) WHERE username = $1;',[username,video_id])
+          .then(r => {
+            client.release()
+          })
+          .catch(err => {
+            console.log(err.stack)
+            res.send("ERROR")
+            return;
+          })
+      })
+  await pool.connect()
+      .then(client => {
+       return client
+         .query('UPDATE videos SET likes = likes - 1 WHERE id = $1;',[video_id])
+         .then(r => {
+           client.release()
+           res.send("OK")
+         })
+         .catch(err => {
+           console.log(err.stack)
+           res.send("ERROR")
+         })
+     })
+  
+});
+
 function addToken(tokenobj)
 {
   token_data.tokens.push(tokenobj)
