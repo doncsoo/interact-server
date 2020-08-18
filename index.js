@@ -2,6 +2,7 @@ const express = require('express')
 const aws = require('aws-sdk');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const path = require('path');
 const { Client, Pool } = require('pg');
 const extractFrames = require('ffmpeg-extract-frames');
 var app = express()
@@ -160,7 +161,7 @@ app.get('/get-preview/:id', async function(req,res){
     output: './preview-%i.png',
     offsets: [2000]
   })
-  res.sendFile('./preview-1.png')
+  res.sendFile(path.join(__dirname,'/preview-1.png'))
   fs.unlink('./preview-1.png')
 });
 
