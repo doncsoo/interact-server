@@ -3,6 +3,7 @@ const aws = require('aws-sdk');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const { Client, Pool } = require('pg');
+const extractFrames = require('ffmpeg-extract-frames');
 var app = express()
 
 app.use(cors())
@@ -19,6 +20,17 @@ const pool = new Pool({
 app.get('/', function(req, res){
     res.redirect('http://interact-client.herokuapp.com/')
  });
+
+ function verifyUser(recv_token)
+{
+  let tokens = token_data.tokens;
+  for(let i = 0; i < tokens.length; i++)
+  {
+    if(tokens[i].token == recv_token) return tokens[i].username;
+  }
+
+  return null;
+}
 
 app.get('/upload-verify', (req, res) => {
   const s3 = new aws.S3({region:"eu-central-1"});
@@ -53,26 +65,13 @@ app.post('/insert-video', async function(req, res){
   video_name = video_data.name;
   video_desc = video_data.desc;
   video_treeid = video_data.treeid;
-  video_id = null;
-  //generating url based on row count
-  await pool.connect()
-       .then(client => {
-        return client
-          .query('SELECT COUNT(*) FROM videos')
-          .then(r => {
-            client.release()
-            video_id = r.rows[0].count;
-          })
-          .catch(err => {
-            client.release()
-            console.log(err.stack)
-          })
-      })
+  video_owner = video_data.owner;
+  video_preview_id = video_data.preview_id;
   //inserting new row
   await pool.connect()
        .then(client => {
         return client
-          .query('INSERT INTO videos (id,name,description,tree_id,owner,preview_id) VALUES ($1,$2,$3,$4,$5,$6)',[video_id,video_name,video_desc,video_treeid,video_owner,video_preview_id])
+          .query('INSERT INTO videos (id,name,description,tree_id,owner,preview_id) VALUES ((SELECT COUNT(*) + 1 FROM videos),$1,$2,$3,$4,$5)',[video_name,video_desc,video_treeid,video_owner,video_preview_id])
           .then(r => {
             client.release()
             res.send("Video upload succeeded")
@@ -154,16 +153,16 @@ app.get('/get-fav-videos/:owner', async function(req,res){
  })
 });
 
-function verifyUser(recv_token)
-{
-  let tokens = token_data.tokens;
-  for(let i = 0; i < tokens.length; i++)
-  {
-    if(tokens[i].token == recv_token) return tokens[i].username;
-  }
-
-  return null;
-}
+app.get('/get-preview/:id', async function(req,res){
+  let link = "https://interact-videos.s3.eu-central-1.amazonaws.com/" + req.params.id;
+  await extractFrames({
+    input: link,
+    output: './preview-%i.png',
+    offsets: [2000]
+  })
+  res.sendFile('./preview-1.png')
+  fs.unlink('./preview-1.png')
+});
 
 app.post('/interaction-addlike', async function(req, res){
 

@@ -13,6 +13,8 @@
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
+    "ffmpeg-extract-frames": "^2.0.2",
+    "fluent-ffmpeg": "^2.1.2",
     "pg": "^8.2.1"
   }
 }
