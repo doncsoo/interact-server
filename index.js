@@ -241,6 +241,7 @@ app.post('/user-verify', async function(req, res){
           })
           .catch(err => {
             console.log(err.stack)
+            res.status(500).send("ERROR");
           })
       })
   
@@ -266,8 +267,8 @@ app.post('/register', async function(req, res){
           .catch(err => {
             client.release()
             console.log(err.stack)
-            if(err.code === "23505") res.send("Error: This username already exists")
-            else res.send("An unknown error occurred")
+            if(err.code === "23505") res.status(400).send("Error: This username already exists")
+            else res.status(500).send("An unknown error occurred")
             return;
           })
       })
