@@ -42,12 +42,12 @@ async function queryDatabaseSimple(response,query)
         .then(r => {
           client.release();
           console.log(r.rows);
-          response.send(r.rows);
+          response.status(200).send(r.rows);
         })
         .catch(err => {
           client.release();
           console.log(err.stack);
-          response.send("error");
+          response.status(500).send("ERROR");
         })
     });
 }
@@ -61,14 +61,33 @@ async function queryDatabaseParameters(response,query,parameters)
         .then(r => {
           client.release()
           console.log(r.rows);
-          response.send(r.rows);
+          response.status(200).send(r.rows);
         })
         .catch(err => {
           client.release()
           console.log(err.stack)
-          response.send("error");
+          response.status(500).send("ERROR");
         })
     })
+}
+
+async function queryDatabaseUpdateInsert(response,query,parameters)
+{
+  await pool.connect()
+     .then(client => {
+      return client
+        .query(query)
+        .then(r => {
+          client.release();
+          console.log(r.rows);
+          response.status(201).send("OK");
+        })
+        .catch(err => {
+          client.release();
+          console.log(err.stack);
+          response.status(500).send("ERROR");
+        })
+    });
 }
 
 app.get('/upload-verify', (req, res) => {
@@ -99,45 +118,21 @@ app.get('/upload-verify', (req, res) => {
 
 app.post('/insert-video', async function(req, res){
   video_data = req.body;
-  console.log(req.body);
-  if(req.body == {}) res.status(400).send("Empty request body. Cancelling request.");
+  //Invalid body, rejecting request
+  if(req.body === {}) res.status(400).send("Empty request body. Cancelling request.");
   video_name = video_data.name;
   video_desc = video_data.desc;
   video_treeid = video_data.treeid;
   video_owner = video_data.owner;
   video_preview_id = video_data.preview_id;
-  //inserting new row
-  await pool.connect()
-       .then(client => {
-        return client
-          .query('INSERT INTO videos (id,name,description,tree_id,owner,preview_id) VALUES ((SELECT COUNT(*) + 1 FROM videos),$1,$2,$3,$4,$5)',[video_name,video_desc,video_treeid,video_owner,video_preview_id])
-          .then(r => {
-            client.release()
-            res.send("Video upload succeeded")
-          })
-          .catch(err => {
-            client.release()
-            console.log(err.stack)
-          })
-      })
+  
+  await queryDatabaseUpdateInsert(res,'INSERT INTO videos (id,name,description,tree_id,owner,preview_id) VALUES ((SELECT COUNT(*) + 1 FROM videos),$1,$2,$3,$4,$5)',
+    [video_name,video_desc,video_treeid,video_owner,video_preview_id]);
   
 });
 
 app.get('/get-video/:id', async function(req,res) {
-    await pool.connect()
-     .then(client => {
-      return client
-        .query('SELECT * FROM videos WHERE id = $1',[req.params.id])
-        .then(r => {
-          client.release()
-          res.send(r.rows[0])
-        })
-        .catch(err => {
-          client.release()
-          console.log(err.stack)
-        })
-    })
-  
+    await queryDatabaseParameters(res,'SELECT * FROM videos WHERE id = $1',[req.params.id]);
 });
 
 app.get('/get-videos/:owner', async function(req,res){
@@ -152,19 +147,7 @@ app.get('/get-videos/:owner', async function(req,res){
 });
 
 app.get('/get-fav-videos/:owner', async function(req,res){
-  //check if likes are not empty array
-  await pool.connect()
-  .then(client => {
-   return client
-     .query('SELECT likes FROM likes_data WHERE username = $1',[req.params.owner])
-     .then(r => {
-       client.release()
-       res.send(r.rows[0])
-     })
-     .catch(err => {
-       console.log(err.stack)
-     })
- })
+    await queryDatabaseParameters(res,'SELECT likes FROM likes_data WHERE username = $1',[req.params.owner]);
 });
 
 app.get('/get-preview/:id', async function(req,res){
