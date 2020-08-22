@@ -33,7 +33,7 @@ app.get('/', function(req, res){
   return null;
 }
 
-async function queryDatabaseSimple(query)
+async function queryDatabaseSimple(response,query)
 {
   await pool.connect()
      .then(client => {
@@ -42,17 +42,17 @@ async function queryDatabaseSimple(query)
         .then(r => {
           client.release();
           console.log(r.rows);
-          return r.rows;
+          response.send(r.rows);
         })
         .catch(err => {
           client.release();
           console.log(err.stack);
-          return "error";
+          response.send("error");
         })
     });
 }
 
-async function queryDatabaseParameters(query,parameters)
+async function queryDatabaseParameters(response,query,parameters)
 {
   await pool.connect()
      .then(client => {
@@ -61,20 +61,14 @@ async function queryDatabaseParameters(query,parameters)
         .then(r => {
           client.release()
           console.log(r.rows);
-          return r.rows;
+          response.send(r.rows);
         })
         .catch(err => {
           client.release()
           console.log(err.stack)
-          return "error";
+          response.send("error");
         })
     })
-}
-
-async function queryDatabase(query, parameters)
-{
-  if(!parameters) return queryDatabaseSimple(query);
-  else return queryDatabaseParameters(query, parameters);
 }
 
 app.get('/upload-verify', (req, res) => {
@@ -149,11 +143,11 @@ app.get('/get-video/:id', async function(req,res) {
 app.get('/get-videos/:owner', async function(req,res){
   if(req.params.owner == "all")
   {
-    await queryDatabase('SELECT * FROM videos').then(r => res.send(r));
+    await queryDatabaseSimple(res, 'SELECT * FROM videos');
   }
   else
   {
-    await queryDatabase('SELECT * FROM videos WHERE owner = $1',[req.params.owner]).then(r => res.send(r));
+    await queryDatabaseParameters(res, 'SELECT * FROM videos WHERE owner = $1', [req.params.owner]);
   }
 });
 
