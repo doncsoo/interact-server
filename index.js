@@ -143,11 +143,11 @@ app.get('/get-video/:id', async function(req,res) {
 app.get('/get-videos/:owner', async function(req,res){
   if(req.params.owner == "all")
   {
-    res.send(await queryDatabaseSimple('SELECT * FROM videos'));
+    await queryDatabaseSimple('SELECT * FROM videos').then(r => res.send(r));
   }
   else
   {
-    res.send(await queryDatabaseParameters('SELECT * FROM videos WHERE owner = $1',[req.params.owner]));
+    await queryDatabaseParameters('SELECT * FROM videos WHERE owner = $1',[req.params.owner]).then(r => res.send(r));
   }
 });
 
