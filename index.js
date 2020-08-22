@@ -22,7 +22,7 @@ app.get('/', function(req, res){
     res.redirect('http://interact-client.herokuapp.com/')
  });
 
- function verifyUser(recv_token)
+function verifyUser(recv_token)
 {
   let tokens = token_data.tokens;
   for(let i = 0; i < tokens.length; i++)
@@ -161,54 +161,36 @@ app.get('/get-preview/:id', async function(req,res){
   fs.unlink('./preview-1.png')
 });
 
-app.post('/interaction-addlike', async function(req, res){
+app.post('/like/:action', async function(req, res){
 
   like_data = req.body;
   if(req.body == {}) res.status(400).send("Empty request body. Cancelling request.");
   username = verifyUser(like_data.token);
   video_id = like_data.video_id;
   //if invalid token
-  if(!username) res.send("ERROR")
-  //adding like
-  await pool.connect()
-       .then(client => {
-        return client
-          .query('UPDATE likes_data SET likes = array_append(likes, $2) WHERE username = $1;',[username,video_id])
-          .then(r => {
-            client.release()
-          })
-          .catch(err => {
-            console.log(err.stack)
-            res.send("ERROR")
-            return;
-          })
-      })
-  await pool.connect()
+  if(!username) res.status(403).send("ERROR")
+
+  if(req.params.action == "add")
+  {
+    //adding like
+    await pool.connect()
       .then(client => {
-       return client
-         .query('UPDATE videos SET likes = likes + 1 WHERE id = $1;',[video_id])
-         .then(r => {
-           client.release()
-           res.send("OK")
-         })
-         .catch(err => {
-           console.log(err.stack)
-           res.send("ERROR")
-         })
+            return client
+            .query('UPDATE likes_data SET likes = array_append(likes, $2) WHERE username = $1;',[username,video_id])
+            .then(r => {
+                client.release()
+            })
+      .catch(err => {
+        console.log(err.stack)
+        res.send("ERROR")
+        return;
+       })
      })
-  
-});
-
-app.post('/interaction-removelike', async function(req, res){
-
-  like_data = req.body;
-  if(req.body == {}) res.status(400).send("Empty request body. Cancelling request.");
-  username = verifyUser(like_data.token);
-  video_id = like_data.video_id;
-  //if invalid token
-  if(!username) res.send("ERROR")
-  //adding like
-  await pool.connect()
+    queryDatabaseUpdateInsert(res,'UPDATE videos SET likes = likes + 1 WHERE id = $1;',[video_id]);
+  }
+  else if(req.params.action == "remove")
+  {
+    await pool.connect()
        .then(client => {
         return client
           .query('UPDATE likes_data SET likes = array_remove(likes, $2) WHERE username = $1;',[username,video_id])
@@ -221,20 +203,9 @@ app.post('/interaction-removelike', async function(req, res){
             return;
           })
       })
-  await pool.connect()
-      .then(client => {
-       return client
-         .query('UPDATE videos SET likes = likes - 1 WHERE id = $1;',[video_id])
-         .then(r => {
-           client.release()
-           res.send("OK")
-         })
-         .catch(err => {
-           console.log(err.stack)
-           res.send("ERROR")
-         })
-     })
-  
+    queryDatabaseUpdateInsert(res,'UPDATE videos SET likes = likes - 1 WHERE id = $1;',[video_id]);
+  }
+
 });
 
 function addToken(tokenobj)
@@ -246,7 +217,7 @@ function addToken(tokenobj)
 app.post('/user-verify', async function(req, res){
   user_data = req.body;
   console.log(req.body);
-  if(req.body == {}) res.status(400).send("Empty request body. Cancelling request.");
+  if(req.body === {}) res.status(400).send("Empty request body. Cancelling request.");
   username = user_data.username;
   password = user_data.password;
   //querying password
@@ -258,7 +229,7 @@ app.post('/user-verify', async function(req, res){
             client.release()
             if(r.rows.length == 0)
             {
-              res.json({verified: false, error: "This following user doesn't exist"})
+              res.status(401).json({verified: false, error: "This following user doesn't exist"})
             }
             else if(password == r.rows[0].password)
             {
@@ -266,7 +237,7 @@ app.post('/user-verify', async function(req, res){
               addToken({username: username, token: gen_token});
               res.json({verified: true, token: gen_token})
             }
-            else res.json({verified: false, error: "Invalid password"})
+            else res.status(401).json({verified: false, error: "Invalid password"})
           })
           .catch(err => {
             console.log(err.stack)
@@ -278,30 +249,17 @@ app.post('/user-verify', async function(req, res){
 app.post('/register', async function(req, res){
   user_data = req.body;
   console.log(req.body);
-  if(req.body == {}) res.status(400).send("Empty request body. Cancelling request.");
+  if(req.body === {}) res.status(400).send("Empty request body. Cancelling request.");
   username = user_data.username;
   password = user_data.password;
   fullname = user_data.fullname;
   user_id = null;
-  //getting id
-  await pool.connect()
-       .then(client => {
-        return client
-          .query('SELECT COUNT(*) FROM users')
-          .then(r => {
-            client.release()
-            user_id = r.rows[0].count;
-          })
-          .catch(err => {
-            client.release()
-            console.log(err.stack)
-          })
-      })
   //inserting new row
   await pool.connect()
        .then(client => {
         return client
-          .query('INSERT INTO users (id,username,password,fullname,isadmin) VALUES ($1,$2,$3,$4,FALSE)',[user_id,username,password,fullname])
+          .query('INSERT INTO users (id,username,password,fullname,isadmin) VALUES ((SELECT COUNT(*) FROM users),$1,$2,$3,FALSE)',
+          [username,password,fullname])
           .then(r => {
             client.release()
           })
@@ -313,21 +271,7 @@ app.post('/register', async function(req, res){
             return;
           })
       })
-  //inserting new row in likes_data
-  await pool.connect()
-       .then(client => {
-        return client
-          .query('INSERT INTO likes_data (username) VALUES ($1)',[username])
-          .then(r => {
-            client.release()
-            res.send("Registration successful!")
-          })
-          .catch(err => {
-            client.release()
-            console.log(err.stack)
-            res.send("An unknown error occurred")
-          })
-      })
+  queryDatabaseUpdateInsert(res,'INSERT INTO likes_data (username) VALUES ($1)',[username]);
   
 });
 
