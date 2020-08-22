@@ -71,6 +71,12 @@ async function queryDatabaseParameters(query,parameters)
     })
 }
 
+async function queryDatabase(query, parameters)
+{
+  if(!parameters) return queryDatabaseSimple(query);
+  else return queryDatabaseParameters(query, parameters);
+}
+
 app.get('/upload-verify', (req, res) => {
   const s3 = new aws.S3({region:"eu-central-1"});
   const fileName = req.query['file-name'];
@@ -143,11 +149,11 @@ app.get('/get-video/:id', async function(req,res) {
 app.get('/get-videos/:owner', async function(req,res){
   if(req.params.owner == "all")
   {
-    await queryDatabaseSimple('SELECT * FROM videos').then(r => res.send(r));
+    await queryDatabase('SELECT * FROM videos').then(r => res.send(r));
   }
   else
   {
-    await queryDatabaseParameters('SELECT * FROM videos WHERE owner = $1',[req.params.owner]).then(r => res.send(r));
+    await queryDatabase('SELECT * FROM videos WHERE owner = $1',[req.params.owner]).then(r => res.send(r));
   }
 });
 
