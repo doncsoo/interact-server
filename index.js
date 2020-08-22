@@ -33,7 +33,7 @@ app.get('/', function(req, res){
   return null;
 }
 
-function queryDatabaseSimple(query)
+async function queryDatabaseSimple(query)
 {
   await pool.connect()
      .then(client => {
@@ -51,7 +51,7 @@ function queryDatabaseSimple(query)
     });
 }
 
-function queryDatabaseParameters(query,parameters)
+async function queryDatabaseParameters(query,parameters)
 {
   await pool.connect()
      .then(client => {
@@ -141,12 +141,12 @@ app.get('/get-video/:id', async function(req,res) {
 app.get('/get-videos/:owner', async function(req,res){
   if(req.params.owner == "all")
   {
-    let rows = queryDatabaseSimple('SELECT * FROM videos');
+    let rows = await queryDatabaseSimple('SELECT * FROM videos');
     res.send(rows);
   }
   else
   {
-    let rows = queryDatabaseParameters('SELECT * FROM videos WHERE owner = $1',[req.params.owner]);
+    let rows = await queryDatabaseParameters('SELECT * FROM videos WHERE owner = $1',[req.params.owner]);
     res.send(rows);
   }
 });
