@@ -33,6 +33,42 @@ app.get('/', function(req, res){
   return null;
 }
 
+function queryDatabaseSimple(query)
+{
+  await pool.connect()
+     .then(client => {
+      return client
+        .query(query)
+        .then(r => {
+          client.release();
+          return r.rows;
+        })
+        .catch(err => {
+          client.release();
+          console.log(err.stack);
+          return "error";
+        })
+    });
+}
+
+function queryDatabaseParameters(query,parameters)
+{
+  await pool.connect()
+     .then(client => {
+      return client
+        .query(query,parameters)
+        .then(r => {
+          client.release()
+          return r.rows;
+        })
+        .catch(err => {
+          client.release()
+          console.log(err.stack)
+          return "error";
+        })
+    })
+}
+
 app.get('/upload-verify', (req, res) => {
   const s3 = new aws.S3({region:"eu-central-1"});
   const fileName = req.query['file-name'];
@@ -105,37 +141,14 @@ app.get('/get-video/:id', async function(req,res) {
 app.get('/get-videos/:owner', async function(req,res){
   if(req.params.owner == "all")
   {
-    await pool.connect()
-     .then(client => {
-      return client
-        .query('SELECT * FROM videos')
-        .then(r => {
-          client.release()
-          res.send(r.rows)
-        })
-        .catch(err => {
-          client.release()
-          console.log(err.stack)
-        })
-    })
+    let rows = queryDatabaseSimple('SELECT * FROM videos');
+    res.send(rows);
   }
   else
   {
-    await pool.connect()
-     .then(client => {
-      return client
-        .query('SELECT * FROM videos WHERE owner = $1',[req.params.owner])
-        .then(r => {
-          client.release()
-          res.send(r.rows)
-        })
-        .catch(err => {
-          client.release()
-          console.log(err.stack)
-        })
-    })
+    let rows = queryDatabaseParameters('SELECT * FROM videos WHERE owner = $1',[req.params.owner]);
+    res.send(rows);
   }
-  
 });
 
 app.get('/get-fav-videos/:owner', async function(req,res){
