@@ -76,7 +76,7 @@ async function queryDatabaseUpdateInsert(response,query,parameters)
   await pool.connect()
      .then(client => {
       return client
-        .query(query)
+        .query(query,parameters)
         .then(r => {
           client.release();
           console.log(r.rows);
