@@ -93,6 +93,7 @@ async function queryDatabaseUpdateInsert(response,query,parameters)
 
 app.get('/upload-verify', (req, res) => {
   const s3 = new aws.S3({region:"eu-central-1"});
+  let fileName = req.query['file-name'];
   var s3Params = {
     Bucket: process.env.S3_BUCKET,
     Key: req.query['file-name'],
