@@ -134,6 +134,10 @@ app.get('/get-video/:id', async function(req,res) {
     await queryDatabaseParameters(res,'SELECT * FROM videos WHERE id = $1',[req.params.id]);
 });
 
+app.get('/get-tree/:id', async function(req,res) {
+  await queryDatabaseParameters(res,'SELECT tree FROM videos WHERE id = $1',[req.params.id]);
+});
+
 app.get('/get-videos/:owner', async function(req,res){
     if(req.params.owner == "all") await queryDatabaseSimple(res, 'SELECT * FROM videos');
     else await queryDatabaseParameters(res, 'SELECT * FROM videos WHERE owner = $1', [req.params.owner]);
