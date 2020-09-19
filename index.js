@@ -158,7 +158,7 @@ app.post('/edit-content', async function(req, res){
             client.release();
             if(r.rows[0].owner == video_owner)
             {
-              await queryDatabaseUpdateInsert(res,'UPDATE videos SET tree = $1 WHERE id = $2',[video_tree,video_id]);
+              queryDatabaseUpdateInsert(res,'UPDATE videos SET tree = $1 WHERE id = $2',[video_tree,video_id]);
             }
             else
             {
