@@ -131,7 +131,7 @@ app.post('/insert-content', async function(req, res){
     return;
   }
   
-  await queryDatabaseUpdateInsert(res,'INSERT INTO videos (id,name,description,owner,preview_id,prerequisite,tree) VALUES ((SELECT COUNT(*) + 1 FROM videos),$1,$2,$3,$4,$5,$6)',
+  await queryDatabaseUpdateInsert(res,'INSERT INTO videos (id,name,description,owner,preview_id,prerequisite,tree) VALUES ((SELECT COUNT(*) FROM videos),$1,$2,$3,$4,$5,$6)',
     [video_name,video_desc,video_owner,video_preview_id,null,video_tree]);
   
 });
