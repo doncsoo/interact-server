@@ -121,12 +121,18 @@ app.post('/insert-content', async function(req, res){
   if(req.body === {}) res.status(400).send("Empty request body. Cancelling request.");
   video_name = video_data.name;
   video_desc = video_data.desc;
-  video_treeid = video_data.treeid;
-  video_owner = video_data.owner;
+  video_owner = verifyUser(video_data.token);
   video_preview_id = video_data.preview_id;
+  video_tree = video_data.tree;
+
+  if(!video_owner)
+  {
+    res.status(401).send("ERROR");
+    return;
+  }
   
-  await queryDatabaseUpdateInsert(res,'INSERT INTO videos (id,name,description,tree_id,owner,preview_id) VALUES ((SELECT COUNT(*) + 1 FROM videos),$1,$2,$3,$4,$5)',
-    [video_name,video_desc,video_treeid,video_owner,video_preview_id]);
+  await queryDatabaseUpdateInsert(res,'INSERT INTO videos (id,name,description,owner,preview_id,prerequisite,tree) VALUES ((SELECT COUNT(*) + 1 FROM videos),$1,$2,$3,$4,$5,$6)',
+    [video_name,video_desc,video_owner,video_preview_id,null,video_tree]);
   
 });
 
