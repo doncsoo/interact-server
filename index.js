@@ -136,6 +136,48 @@ app.post('/insert-content', async function(req, res){
   
 });
 
+app.post('/edit-content', async function(req, res){
+  video_data = req.body;
+  //Invalid body, rejecting request
+  if(req.body === {}) res.status(400).send("Empty request body. Cancelling request.");
+  video_id = video_data.id;
+  video_owner = verifyUser(video_data.token);
+  video_tree = video_data.tree;
+
+  if(!video_owner)
+  {
+    res.status(401).send("ERROR");
+    return;
+  }
+
+  await pool.connect()
+       .then(client => {
+        return client
+          .query('SELECT owner FROM videos WHERE id = $1',[video_id])
+          .then(r => {
+            client.release();
+            if(r.rows[0].owner == video_owner)
+            {
+              await queryDatabaseUpdateInsert(res,'UPDATE videos SET tree = $1 WHERE id = $2',[video_tree,video_id]);
+            }
+            else
+            {
+              res.status(401).send("ERROR");
+            }
+          })
+          .catch(err => {
+            client.release();
+            console.log(err.stack);
+            res.status(500).send("ERROR");
+            return;
+          })
+      })
+  
+  await queryDatabaseUpdateInsert(res,'INSERT INTO videos (id,name,description,owner,preview_id,prerequisite,tree) VALUES ((SELECT COUNT(*) FROM videos),$1,$2,$3,$4,$5,$6)',
+    [video_name,video_desc,video_owner,video_preview_id,null,video_tree]);
+  
+});
+
 app.get('/get-video/:id', async function(req,res) {
     await queryDatabaseParameters(res,'SELECT * FROM videos WHERE id = $1',[req.params.id]);
 });
