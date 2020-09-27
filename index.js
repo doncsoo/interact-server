@@ -204,7 +204,7 @@ app.post('/delete-content', async function(req,res){
             client.release();
             if(r.rows[0].owner == video_owner)
             {
-              queryDatabaseUpdateInsert(res,'DELETE FROM videos WHERE id = $1',[video_id]);
+              queryDatabaseParameters(res,'DELETE FROM videos WHERE id = $1',[video_id]);
             }
             else
             {
