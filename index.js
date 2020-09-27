@@ -359,6 +359,4 @@ app.get('/verify-token/:token', async function(req,res){
   else res.status(200).send("INVALID");
 });
 
-app.get()
-
 app.listen(process.env.PORT || 3000);
