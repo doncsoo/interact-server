@@ -316,4 +316,10 @@ app.post('/register', async function(req, res){
   
 });
 
+app.get('/verify-token/:token', async function(req,res){
+  let result = verifyUser(req.params.token);
+  if(result) res.status(200).send("VALID");
+  else res.status(200).send("INVALID");
+});
+
 app.listen(process.env.PORT || 3000);
