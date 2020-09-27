@@ -91,14 +91,15 @@ async function queryDatabaseUpdateInsert(response,query,parameters)
     });
 }
 
-app.get('/upload-verify', (req, res) => {
+function getUploadLink(req,res,key,type)
+{
   const s3 = new aws.S3({region:"eu-central-1"});
   let fileName = req.query['file-name'];
   var s3Params = {
     Bucket: process.env.S3_BUCKET,
-    Key: req.query['file-name'],
-    Expires: 60,
-    ContentType: req.query['file-type'],
+    Key: key,
+    Expires: 600,
+    ContentType: type,
     ACL: 'public-read'
   };
 
@@ -113,6 +114,14 @@ app.get('/upload-verify', (req, res) => {
     };
     res.status(200).send(returnData);
   });
+}
+
+app.get('/upload-verify', (req, res) => {
+  getUploadLink(req,res,req.query['file-name'],"video/mp4");
+});
+
+app.get('/upload-verify-image', (req, res) => {
+  getUploadLink(req,res,"previews/" + req.query['file-name'],req.query['file-type']);
 });
 
 app.post('/insert-content', async function(req, res){
