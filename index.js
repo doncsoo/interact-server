@@ -183,6 +183,43 @@ app.post('/edit-content', async function(req, res){
       })
 });
 
+app.post('/delete-content', async function(req,res){
+  video_data = req.body;
+  //Invalid body, rejecting request
+  if(req.body === {}) res.status(400).send("Empty request body. Cancelling request.");
+  video_id = video_data.id;
+  video_owner = verifyUser(video_data.token);
+
+  if(!video_owner)
+  {
+    res.status(401).send("ERROR");
+    return;
+  }
+
+  await pool.connect()
+       .then(client => {
+        return client
+          .query('SELECT owner FROM videos WHERE id = $1',[video_id])
+          .then(r => {
+            client.release();
+            if(r.rows[0].owner == video_owner)
+            {
+              queryDatabaseUpdateInsert(res,'DELETE FROM videos WHERE id = $1',[video_id]);
+            }
+            else
+            {
+              res.status(401).send("ERROR");
+            }
+          })
+          .catch(err => {
+            client.release();
+            console.log(err.stack);
+            res.status(500).send("ERROR");
+            return;
+          })
+      })
+});
+
 app.get('/get-video/:id', async function(req,res) {
     await queryDatabaseParameters(res,'SELECT * FROM videos WHERE id = $1',[req.params.id]);
 });
@@ -321,5 +358,7 @@ app.get('/verify-token/:token', async function(req,res){
   if(result) res.status(200).send("VALID");
   else res.status(200).send("INVALID");
 });
+
+app.get()
 
 app.listen(process.env.PORT || 3000);
