@@ -388,7 +388,7 @@ app.post('/prereq-check', async function(req,res){
     })
 });
 
-app.get('/prereq-choices', async function(req,res){
+app.post('/prereq-choices', async function(req,res){
   body_data = req.body;
 
   username = body_data.username;
