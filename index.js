@@ -359,4 +359,43 @@ app.get('/verify-token/:token', async function(req,res){
   else res.status(200).send("INVALID");
 });
 
+app.post('/prereq-check', async function(req,res){
+  body_data = req.body;
+
+  username = body_data.username;
+  vidid = body_data.vidid;
+  await pool.connect()
+     .then(client => {
+      return client
+        .query('SELECT username FROM choice_data WHERE vidid = $1',vidid)
+        .then(r => {
+          client.release();
+          for(row of r.rows)
+          {
+            if(row.username == username)
+            {
+              res.status(200).json({allowed: true});
+              return;
+            }
+          }
+          res.status(200).json({allowed: false});
+        })
+        .catch(err => {
+          client.release();
+          console.log(err.stack);
+          res.status(500).send("ERROR");
+        })
+    })
+});
+
+app.get('/prereq-choices', async function(req,res){
+  body_data = req.body;
+
+  username = body_data.username;
+  vidid = body_data.vidid;
+
+  await queryDatabaseParameters(res,'SELECT choices FROM choice_data WHERE username = $1 AND vidid = $2',
+                                [username,vidid]);
+});
+
 app.listen(process.env.PORT || 3000);
