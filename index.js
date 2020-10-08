@@ -367,7 +367,7 @@ app.post('/prereq-check', async function(req,res){
   await pool.connect()
      .then(client => {
       return client
-        .query('SELECT username FROM choice_data WHERE vidid = $1',vidid)
+        .query('SELECT username FROM choice_data WHERE vidid = $1',[vidid])
         .then(r => {
           client.release();
           for(row of r.rows)
