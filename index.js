@@ -369,4 +369,14 @@ app.post('/prereq-choices', async function(req,res){
                                 [username,vidid]);
 });
 
+app.post('/upload-choices', async function(req,res){
+  body_data = req.body;
+
+  username = body_data.username;
+  vidid = body_data.vidid;
+  choices = body_data.choices;
+
+  await queryDatabaseUpdateInsert(res,'INSERT INTO videos (username,vidid,choices) VALUES ($1,$2,$3)', [username,vidid,choices]);
+});
+
 app.listen(process.env.PORT || 3000);
