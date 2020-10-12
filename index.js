@@ -383,7 +383,7 @@ app.post('/upload-choices', async function(req,res){
           [username,vidid])
           .then(r => {
             client.release();
-            await queryDatabaseUpdateInsert(res,'INSERT INTO choice_data (username,vidid,choices) VALUES ($1,$2,$3)', [username,vidid,choices]);
+            queryDatabaseUpdateInsert(res,'INSERT INTO choice_data (username,vidid,choices) VALUES ($1,$2,$3)', [username,vidid,choices]);
           })
           .catch(err => {
             client.release();
