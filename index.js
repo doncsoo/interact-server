@@ -376,7 +376,21 @@ app.post('/upload-choices', async function(req,res){
   vidid = body_data.vidid;
   choices = body_data.choices;
 
-  await queryDatabaseUpdateInsert(res,'INSERT INTO choice_data (username,vidid,choices) VALUES ($1,$2,$3)', [username,vidid,choices]);
+  await pool.connect()
+       .then(client => {
+        return client
+          .query('DELETE FROM choice_data WHERE username = $1 AND vidid = $2',
+          [username,vidid])
+          .then(r => {
+            client.release();
+            await queryDatabaseUpdateInsert(res,'INSERT INTO choice_data (username,vidid,choices) VALUES ($1,$2,$3)', [username,vidid,choices]);
+          })
+          .catch(err => {
+            client.release();
+            console.log(err.stack);
+            return;
+          })
+      });
 });
 
 app.listen(process.env.PORT || 3000);
