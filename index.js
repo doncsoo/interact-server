@@ -133,6 +133,7 @@ app.post('/insert-content', async function(req, res){
   video_owner = verifyUser(video_data.token);
   video_preview_id = video_data.preview_id;
   video_tree = video_data.tree;
+  video_prereq = video_data.prereq;
 
   if(!video_owner)
   {
@@ -141,7 +142,7 @@ app.post('/insert-content', async function(req, res){
   }
   
   await queryDatabaseUpdateInsert(res,'INSERT INTO videos (id,name,description,owner,preview_id,prerequisite,tree) VALUES ((SELECT COUNT(*) FROM videos),$1,$2,$3,$4,$5,$6)',
-    [video_name,video_desc,video_owner,video_preview_id,null,video_tree]);
+    [video_name,video_desc,video_owner,video_preview_id,video_prereq,video_tree]);
   
 });
 
