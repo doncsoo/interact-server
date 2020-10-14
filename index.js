@@ -230,8 +230,8 @@ app.get('/get-tree/:id', async function(req,res) {
 });
 
 app.get('/get-videos/:owner', async function(req,res){
-    if(req.params.owner == "all") await queryDatabaseSimple(res, 'SELECT * FROM videos');
-    else await queryDatabaseParameters(res, 'SELECT * FROM videos WHERE owner = $1', [req.params.owner]);
+    if(req.params.owner == "all") await queryDatabaseSimple(res, 'SELECT * FROM videos ORDER BY id');
+    else await queryDatabaseParameters(res, 'SELECT * FROM videos WHERE owner = $1 ORDER BY id', [req.params.owner]);
 });
 
 app.get('/get-fav-videos/:owner', async function(req,res){
