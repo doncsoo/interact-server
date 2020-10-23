@@ -365,7 +365,7 @@ app.get('/verify-token/:token', async function(req,res){
 app.post('/prereq-choices', async function(req,res){
   body_data = req.body;
 
-  username = body_data.username;
+  username = verifyUser(body_data.token);
   vidid = body_data.vidid;
 
   await queryDatabaseParameters(res,'SELECT choices FROM choice_data WHERE username = $1 AND vidid = $2',
