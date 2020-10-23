@@ -205,7 +205,9 @@ app.post('/delete-content', async function(req,res){
             client.release();
             if(r.rows[0].owner == video_owner)
             {
-              queryDatabaseParameters(res,'DELETE FROM videos WHERE id = $1',[video_id]);
+              queryDatabaseParameters(null,'DELETE FROM videos WHERE id = $1',[video_id]);
+              //deleting id from likes_data table
+              queryDatabaseUpdateInsert(res,'UPDATE likes_data SET likes = array_remove(likes, $1)',[video_id]);
             }
             else
             {
@@ -373,7 +375,14 @@ app.post('/prereq-choices', async function(req,res){
 app.post('/upload-choices', async function(req,res){
   body_data = req.body;
 
-  username = body_data.username;
+  username = verifyUser(body_data.token);
+
+  if(!username)
+  {
+    res.status(401).send("ERROR");
+    return;
+  }
+
   vidid = body_data.vidid;
   choices = body_data.choices;
 
