@@ -231,6 +231,10 @@ app.get('/get-tree/:id', async function(req,res) {
   await queryDatabaseParameters(res,'SELECT tree FROM videos WHERE id = $1',[req.params.id]);
 });
 
+app.get('/search-query/:term', async function(req,res) {
+  await queryDatabaseParameters(res,"SELECT * FROM videos WHERE name ILIKE '%' || $1 || '%' OR description ILIKE '%' || $1 || '%'",[req.params.term]);
+});
+
 app.get('/get-videos/:owner', async function(req,res){
     if(req.params.owner == "all") await queryDatabaseSimple(res, 'SELECT * FROM videos ORDER BY id');
     else await queryDatabaseParameters(res, 'SELECT * FROM videos WHERE owner = $1 ORDER BY id', [req.params.owner]);
