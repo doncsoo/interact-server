@@ -249,7 +249,7 @@ app.get('/get-preview/:id', async function(req,res){
   await extractFrames({
     input: link,
     output: './preview-' + req.params.id + '.png',
-    offsets: [2000]
+    offsets: [0]
   });
   res.sendFile(path.join(__dirname,'./preview-' + req.params.id + '.png'));
   fs.unlink('./preview-' + req.params.id + '.png');
