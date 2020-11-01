@@ -248,11 +248,11 @@ app.get('/get-preview/:id', async function(req,res){
   let link = "https://interact-videos.s3.eu-central-1.amazonaws.com/" + req.params.id;
   await extractFrames({
     input: link,
-    output: './preview-%i.png',
+    output: './preview-' + req.params.id + '.png',
     offsets: [2000]
   });
-  res.sendFile(path.join(__dirname,'/preview-1.png'));
-  fs.unlink('./preview-1.png');
+  res.sendFile(path.join(__dirname,'./preview-' + req.params.id + '.png'));
+  fs.unlink('./preview-' + req.params.id + '.png');
 });
 
 app.post('/like/:action', async function(req, res){
