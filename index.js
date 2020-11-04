@@ -124,7 +124,7 @@ app.get('/upload-verify-image', (req, res) => {
   getUploadLink(req,res,"previews/" + req.query['file-name'],req.query['file-type']);
 });
 
-app.post('/insert-content', async function(req, res){
+app.put('/content', async function(req, res){
   video_data = req.body;
   //Invalid body, rejecting request
   if(req.body === {}) res.status(400).send("Empty request body. Cancelling request.");
@@ -146,7 +146,7 @@ app.post('/insert-content', async function(req, res){
   
 });
 
-app.post('/edit-content', async function(req, res){
+app.post('/content', async function(req, res){
   video_data = req.body;
   //Invalid body, rejecting request
   if(req.body === {}) res.status(400).send("Empty request body. Cancelling request.");
@@ -184,7 +184,7 @@ app.post('/edit-content', async function(req, res){
       })
 });
 
-app.post('/delete-content', async function(req,res){
+app.delete('/content', async function(req,res){
   video_data = req.body;
   //Invalid body, rejecting request
   if(req.body === {}) res.status(400).send("Empty request body. Cancelling request.");
@@ -255,7 +255,7 @@ app.get('/get-preview/:id', async function(req,res){
   fs.unlink('./preview-' + req.params.id + '.png');
 });
 
-app.post('/like/:action', async function(req, res){
+app.put('/like', async function(req, res){
   like_data = req.body;
   if(req.body === {}) res.status(400).send("Empty request body. Cancelling request.");
   username = verifyUser(like_data.token);
@@ -267,29 +267,37 @@ app.post('/like/:action', async function(req, res){
     return;
   }
 
-  if(req.params.action == "add")
+  try
   {
-    try
-    {
-      queryDatabaseUpdateInsert(null,'UPDATE likes_data SET likes = array_append(likes, $2) WHERE username = $1;',[username,video_id]);
-      queryDatabaseUpdateInsert(res,'UPDATE videos SET likes = likes + 1 WHERE id = $1;',[video_id]);
-    }
-    catch(err)
-    {
-      res.status(500).send("ERROR");
-    }
+    queryDatabaseUpdateInsert(null,'UPDATE likes_data SET likes = array_append(likes, $2) WHERE username = $1;',[username,video_id]);
+    queryDatabaseUpdateInsert(res,'UPDATE videos SET likes = likes + 1 WHERE id = $1;',[video_id]);
   }
-  else if(req.params.action == "remove")
+  catch(err)
   {
-    try
-    {
-      queryDatabaseUpdateInsert(null,'UPDATE likes_data SET likes = array_remove(likes, $2) WHERE username = $1;',[username,video_id]);
-      queryDatabaseUpdateInsert(res,'UPDATE videos SET likes = likes - 1 WHERE id = $1;',[video_id]);
-    }
-    catch(err)
-    {
-      res.status(500).send("ERROR");
-    }
+    res.status(500).send("ERROR");
+  }
+});
+
+app.delete('/like', async function(req, res){
+  like_data = req.body;
+  if(req.body === {}) res.status(400).send("Empty request body. Cancelling request.");
+  username = verifyUser(like_data.token);
+  video_id = like_data.video_id;
+  //if invalid token
+  if(!username)
+  {
+    res.status(401).send("ERROR");
+    return;
+  }
+
+  try
+  {
+    queryDatabaseUpdateInsert(null,'UPDATE likes_data SET likes = array_remove(likes, $2) WHERE username = $1;',[username,video_id]);
+    queryDatabaseUpdateInsert(res,'UPDATE videos SET likes = likes - 1 WHERE id = $1;',[video_id]);
+  }
+  catch(err)
+  {
+    res.status(500).send("ERROR");
   }
 });
 
@@ -331,7 +339,7 @@ app.post('/user-verify', async function(req, res){
       })
 });
 
-app.post('/register', async function(req, res){
+app.put('/register', async function(req, res){
   user_data = req.body;
   console.log(req.body);
   if(req.body === {}) res.status(400).send("Empty request body. Cancelling request.");
