@@ -137,7 +137,7 @@ app.put('/content', async function(req, res){
 
   if(!video_owner)
   {
-    res.status(401).send("ERROR");
+    res.status(400).send("ERROR");
     return;
   }
   
@@ -156,7 +156,7 @@ app.post('/content', async function(req, res){
 
   if(!video_owner)
   {
-    res.status(401).send("ERROR");
+    res.status(403).send("ERROR");
     return;
   }
 
@@ -172,7 +172,7 @@ app.post('/content', async function(req, res){
             }
             else
             {
-              res.status(401).send("ERROR");
+              res.status(403).send("ERROR");
             }
           })
           .catch(err => {
@@ -193,7 +193,7 @@ app.delete('/content', async function(req,res){
 
   if(!video_owner)
   {
-    res.status(401).send("ERROR");
+    res.status(403).send("ERROR");
     return;
   }
 
@@ -211,7 +211,7 @@ app.delete('/content', async function(req,res){
             }
             else
             {
-              res.status(401).send("ERROR");
+              res.status(403).send("ERROR");
             }
           })
           .catch(err => {
@@ -322,15 +322,15 @@ app.post('/user-verify', async function(req, res){
             client.release();
             if(r.rows.length == 0)
             {
-              res.status(401).json({verified: false, error: "This following user doesn't exist"});
+              res.status(403).json({verified: false, error: "This following user doesn't exist"});
             }
             else if(password == r.rows[0].password)
             {
               let gen_token = Math.floor(Math.random() * (9999999999) + 1000000000);
               addToken({username: username, token: gen_token});
-              res.json({verified: true, token: gen_token});
+              res.status(200).json({verified: true, token: gen_token});
             }
-            else res.status(401).json({verified: false, error: "Invalid password"});
+            else res.status(403).json({verified: false, error: "Invalid password"});
           })
           .catch(err => {
             console.log(err.stack);
@@ -380,6 +380,12 @@ app.post('/prereq-choices', async function(req,res){
   username = verifyUser(body_data.token);
   vidid = body_data.vidid;
 
+  if(!username)
+  {
+    res.status(400).send("ERROR");
+    return;
+  }
+
   await queryDatabaseParameters(res,'SELECT choices FROM choice_data WHERE username = $1 AND vidid = $2',
                                 [username,vidid]);
 });
@@ -391,7 +397,7 @@ app.post('/upload-choices', async function(req,res){
 
   if(!username)
   {
-    res.status(401).send("ERROR");
+    res.status(400).send("ERROR");
     return;
   }
 
