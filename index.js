@@ -14,8 +14,12 @@ app.use(bodyParser.json());
 const fs = require('fs');
 const token_data = require('./tokendata.json');
 
+///TESTING - PLEASE FILL THESE VARIABLES WITH LOCAL DATABASE CREDENTIALS
+const test_username = "postgres";
+const test_password = "admin"; 
+
 const pool = new Pool({
-    connectionString: process.env.DATABASE_URL
+    connectionString: !process.env.DATABASE_URL ? "postgresql://" + test_username + ":" + test_password + "@localhost:5432" : process.env.DATABASE_URL
 });
 
 app.get('/', function(req, res){
@@ -137,9 +141,11 @@ app.put('/content', async function(req, res){
 
   if(!video_owner)
   {
-    res.status(400).send("ERROR");
+    res.status(401).send("ERROR");
     return;
   }
+
+  if(!video_name) res.status(400).send("ERROR");
   
   await queryDatabaseUpdateInsert(res,'INSERT INTO videos (id,name,description,owner,preview_id,prerequisite,tree) VALUES ((SELECT COUNT(*) FROM videos),$1,$2,$3,$4,$5,$6)',
     [video_name,video_desc,video_owner,video_preview_id,video_prereq,video_tree]);
@@ -157,6 +163,12 @@ app.post('/content', async function(req, res){
   if(!video_owner)
   {
     res.status(403).send("ERROR");
+    return;
+  }
+
+  if(!video_tree)
+  {
+    res.status(400).send("ERROR");
     return;
   }
 
@@ -207,7 +219,9 @@ app.delete('/content', async function(req,res){
             {
               queryDatabaseParameters(null,'DELETE FROM videos WHERE id = $1',[video_id]);
               //deleting id from likes_data table
-              queryDatabaseUpdateInsert(res,'UPDATE likes_data SET likes = array_remove(likes, $1)',[video_id]);
+              queryDatabaseUpdateInsert(null,'UPDATE likes_data SET likes = array_remove(likes, $1)',[video_id]);
+              //deleting corresponding choices
+              queryDatabaseParameters(res,'DELETE FROM choice_data WHERE vidid = $1',[video_id]);
             }
             else
             {
@@ -224,15 +238,17 @@ app.delete('/content', async function(req,res){
 });
 
 app.get('/get-video/:id', async function(req,res) {
-    await queryDatabaseParameters(res,'SELECT * FROM videos WHERE id = $1',[req.params.id]);
+    if(!isNaN(req.params.id)) await queryDatabaseParameters(res,'SELECT * FROM videos WHERE id = $1',[req.params.id]);
+    else res.status(400).send("ERROR");
 });
 
 app.get('/get-tree/:id', async function(req,res) {
-  await queryDatabaseParameters(res,'SELECT tree FROM videos WHERE id = $1',[req.params.id]);
+    if(!isNaN(req.params.id)) await queryDatabaseParameters(res,'SELECT tree FROM videos WHERE id = $1',[req.params.id]);
+    else res.status(400).send("ERROR");
 });
 
 app.get('/search-query/:term', async function(req,res) {
-  await queryDatabaseParameters(res,"SELECT * FROM videos WHERE name ILIKE '%' || $1 || '%' OR description ILIKE '%' || $1 || '%'",[req.params.term]);
+    await queryDatabaseParameters(res,"SELECT * FROM videos WHERE name ILIKE '%' || $1 || '%' OR description ILIKE '%' || $1 || '%'",[req.params.term]);
 });
 
 app.get('/get-videos/:owner', async function(req,res){
@@ -313,6 +329,11 @@ app.post('/user-verify', async function(req, res){
   if(req.body === {}) res.status(400).send("Empty request body. Cancelling request.");
   username = user_data.username;
   password = user_data.password;
+  if(!username || !password)
+  {
+    res.status(400).send("ERROR");
+    return;
+  }
   //querying password
   await pool.connect()
        .then(client => {
@@ -322,7 +343,7 @@ app.post('/user-verify', async function(req, res){
             client.release();
             if(r.rows.length == 0)
             {
-              res.status(403).json({verified: false, error: "This following user doesn't exist"});
+              res.status(401).json({verified: false, error: "The following user doesn't exist"});
             }
             else if(password == r.rows[0].password)
             {
@@ -330,7 +351,7 @@ app.post('/user-verify', async function(req, res){
               addToken({username: username, token: gen_token});
               res.status(200).json({verified: true, token: gen_token});
             }
-            else res.status(403).json({verified: false, error: "Invalid password"});
+            else res.status(401).json({verified: false, error: "Invalid password"});
           })
           .catch(err => {
             console.log(err.stack);
@@ -347,6 +368,9 @@ app.put('/register', async function(req, res){
   password = user_data.password;
   fullname = user_data.fullname;
   user_id = null;
+
+  if(!username || !password) res.status(400).send("ERROR");
+
   //inserting new row
   await pool.connect()
        .then(client => {
@@ -380,7 +404,7 @@ app.post('/prereq-choices', async function(req,res){
   username = verifyUser(body_data.token);
   vidid = body_data.vidid;
 
-  if(!username)
+  if(!username || vidid == undefined)
   {
     res.status(400).send("ERROR");
     return;
@@ -394,15 +418,20 @@ app.post('/upload-choices', async function(req,res){
   body_data = req.body;
 
   username = verifyUser(body_data.token);
+  vidid = body_data.vidid;
+  choices = body_data.choices;
 
   if(!username)
+  {
+    res.status(401).send("ERROR");
+    return;
+  }
+
+  if(vidid == undefined || !choices)
   {
     res.status(400).send("ERROR");
     return;
   }
-
-  vidid = body_data.vidid;
-  choices = body_data.choices;
 
   await pool.connect()
        .then(client => {
@@ -420,5 +449,7 @@ app.post('/upload-choices', async function(req,res){
           })
       });
 });
+
+module.exports = app
 
 app.listen(process.env.PORT || 3000);

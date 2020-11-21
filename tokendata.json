@@ -2,8 +2,12 @@
     "tokens":
     [
         {
-            "username": "admin",
+            "username": "test",
             "token": 3252354545
+        },
+        {
+            "username": "test2",
+            "token": 1111111111
         }
     ]
 }

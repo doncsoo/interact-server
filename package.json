@@ -4,17 +4,25 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "test": "mocha --require babel-register test/test.js --exit"
   },
   "author": "Kiss Donát",
   "license": "ISC",
   "dependencies": {
     "aws-sdk": "^2.686.0",
+    "babel-register": "^6.26.0",
     "body-parser": "^1.19.0",
+    "chai": "^4.2.0",
+    "chai-http": "^4.3.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "ffmpeg-extract-frames": "^2.0.2",
     "fluent-ffmpeg": "^2.1.2",
+    "mocha": "^8.2.1",
     "pg": "^8.2.1"
+  },
+  "devDependencies": {
+    "mocha-suppress-logs": "^0.2.0"
   }
 }
