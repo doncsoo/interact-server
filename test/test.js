@@ -39,16 +39,6 @@ describe("Test GET methods", () => {
                      done();
                 });
         });
-        it("Get videos for an non-existing user", (done) => {
-            chai.request(app)
-                .get('/get-videos/idontexist')
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    //expected: [] - empty array
-                    res.body.should.have.lengthOf(0);
-                    done();
-                });
-       });
        it("Get videos for an existing user", (done) => {
         chai.request(app)
             .get('/get-videos/jason')
@@ -234,7 +224,7 @@ describe("Test PUT methods", () => {
                     done();
                 });
         });
-        it("Try to like without token - invalid", (done) => {
+        it("Try to like with invalid token - invalid", (done) => {
             chai.request(app)
                 .put('/like')
                 .set('content-type', 'application/json')

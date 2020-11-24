@@ -3,11 +3,13 @@
     [
         {
             "username": "test",
-            "token": 3252354545
+            "token": 3252354545,
+            "isadmin": false
         },
         {
             "username": "test2",
-            "token": 1111111111
+            "token": 1111111111,
+            "isadmin": false
         }
     ]
 }

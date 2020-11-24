@@ -3,7 +3,7 @@ const aws = require('aws-sdk');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
-const { Client, Pool } = require('pg');
+const { Pool } = require('pg');
 const extractFrames = require('ffmpeg-extract-frames');
 var app = express();
 
@@ -21,6 +21,9 @@ const test_password = "admin";
 const pool = new Pool({
     connectionString: !process.env.DATABASE_URL ? "postgresql://" + test_username + ":" + test_password + "@localhost:5432" : process.env.DATABASE_URL
 });
+
+//Modify this variable, to set your Amazon S3 bucket's name
+const bucket = process.env.S3_BUCKET;
 
 app.get('/', function(req, res){
     res.redirect('http://interact-client.herokuapp.com/');
@@ -100,7 +103,7 @@ function getUploadLink(req,res,key,type)
   const s3 = new aws.S3({region:"eu-central-1"});
   let fileName = req.query['file-name'];
   var s3Params = {
-    Bucket: process.env.S3_BUCKET,
+    Bucket: bucket,
     Key: key,
     Expires: 600,
     ContentType: type,
@@ -114,7 +117,7 @@ function getUploadLink(req,res,key,type)
     }
     const returnData = {
       signedRequest: data,
-      url: `https://${process.env.S3_BUCKET}.s3.amazonaws.com/${fileName}`
+      url: `https://${bucket}.s3.amazonaws.com/${fileName}`
     };
     res.status(200).send(returnData);
   });
@@ -348,8 +351,8 @@ app.post('/user-verify', async function(req, res){
             else if(password == r.rows[0].password)
             {
               let gen_token = Math.floor(Math.random() * (9999999999) + 1000000000);
-              addToken({username: username, token: gen_token});
-              res.status(200).json({verified: true, token: gen_token});
+              addToken({username: username, token: gen_token, isadmin: r.rows[0].isadmin});
+              res.status(200).json({verified: true, token: gen_token, isadmin: r.rows[0].isadmin});
             }
             else res.status(401).json({verified: false, error: "Invalid password"});
           })
