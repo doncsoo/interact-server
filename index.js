@@ -16,7 +16,7 @@ const token_data = require('./tokendata.json');
 
 ///TESTING - PLEASE FILL THESE VARIABLES WITH LOCAL DATABASE CREDENTIALS
 const test_username = "postgres";
-const test_password = "admin"; 
+const test_password = "admin";
 
 const pool = new Pool({
     connectionString: !process.env.DATABASE_URL ? "postgresql://" + test_username + ":" + test_password + "@localhost:5432" : process.env.DATABASE_URL
@@ -465,6 +465,6 @@ app.post('/upload-choices', async function(req,res){
       });
 });
 
-module.exports = app
+//module.exports = app
 
 app.listen(process.env.PORT || 3000);
