@@ -40,6 +40,17 @@ function verifyUser(recv_token)
   return null;
 }
 
+function verifyAdmin(recv_token)
+{
+  let tokens = token_data.tokens;
+  for(let i = 0; i < tokens.length; i++)
+  {
+    if(tokens[i].token == recv_token) return tokens[i].isadmin;
+  }
+
+  return null;
+}
+
 async function queryDatabaseSimple(response,query)
 {
   await pool.connect()
@@ -205,6 +216,7 @@ app.delete('/content', async function(req,res){
   if(req.body === {}) res.status(400).send("Empty request body. Cancelling request.");
   video_id = video_data.id;
   video_owner = verifyUser(video_data.token);
+  isadmin = verifyAdmin(video_data.token);
 
   if(!video_owner)
   {
@@ -218,7 +230,7 @@ app.delete('/content', async function(req,res){
           .query('SELECT owner FROM videos WHERE id = $1',[video_id])
           .then(r => {
             client.release();
-            if(r.rows[0].owner == video_owner)
+            if(r.rows[0].owner == video_owner || isadmin == true)
             {
               queryDatabaseParameters(null,'DELETE FROM videos WHERE id = $1',[video_id]);
               //deleting id from likes_data table
