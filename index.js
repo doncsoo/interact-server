@@ -353,7 +353,7 @@ app.post('/user-verify', async function(req, res){
   await pool.connect()
        .then(client => {
         return client
-          .query('SELECT password FROM users WHERE username = $1',[username])
+          .query('SELECT password, isadmin FROM users WHERE username = $1',[username])
           .then(r => {
             client.release();
             if(r.rows.length == 0)
