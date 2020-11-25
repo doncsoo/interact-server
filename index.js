@@ -161,7 +161,7 @@ app.put('/content', async function(req, res){
 
   if(!video_name) res.status(400).send("ERROR");
   
-  await queryDatabaseUpdateInsert(res,'INSERT INTO videos (id,name,description,owner,preview_id,prerequisite,tree) VALUES ((SELECT COUNT(*) FROM videos),$1,$2,$3,$4,$5,$6)',
+  await queryDatabaseUpdateInsert(res,'INSERT INTO videos (id,name,description,owner,preview_id,prerequisite,tree) VALUES ((SELECT MAX(id) + 1 FROM videos),$1,$2,$3,$4,$5,$6)',
     [video_name,video_desc,video_owner,video_preview_id,video_prereq,video_tree]);
   
 });
