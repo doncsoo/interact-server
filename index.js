@@ -431,7 +431,7 @@ app.put('/register', async function(req, res){
   await pool.connect()
        .then(client => {
         return client
-          .query('INSERT INTO users (id,username,password,fullname,isadmin) VALUES ((SELECT COUNT(*) FROM users),$1,$2,$3,FALSE)',
+          .query('INSERT INTO users (id,username,password,fullname,isadmin) VALUES ((SELECT MAX(id) + 1 FROM users),$1,$2,$3,FALSE)',
           [username,password,fullname])
           .then(r => {
             client.release();
