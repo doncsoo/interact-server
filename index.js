@@ -379,8 +379,8 @@ app.delete('/user', async function(req, res){
   user_data = req.body;
   if(req.body === {}) res.status(400).send("Empty request body. Cancelling request.");
   username = user_data.username;
-  token_verify = verifyUser(req.params.token);
-  isadmin = verifyAdmin(req.params.token);
+  token_verify = verifyUser(user_data.token);
+  isadmin = verifyAdmin(user_data.token);
 
   if(!username || !token_verify) res.status(400).send("Bad Request");
 
