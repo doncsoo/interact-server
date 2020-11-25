@@ -410,13 +410,14 @@ app.delete('/user', async function(req, res){
   {
     queryDatabaseParameters(null,'DELETE FROM likes_data WHERE username = $1',[username]);
     queryDatabaseParameters(null,'DELETE FROM choice_data WHERE username = $1',[username]);
+    queryDatabaseParameters(null,'DELETE FROM videos WHERE owner = $1',[username]);
     queryDatabaseParameters(res,'DELETE FROM users WHERE username = $1',[username]);
   }
   else res.status(401).send("ERROR");
 
 });
 
-app.put('/register', async function(req, res){
+app.put('/user', async function(req, res){
   user_data = req.body;
   console.log(req.body);
   if(req.body === {}) res.status(400).send("Empty request body. Cancelling request.");
