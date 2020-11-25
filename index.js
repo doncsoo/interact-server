@@ -173,6 +173,7 @@ app.post('/content', async function(req, res){
   video_id = video_data.id;
   video_owner = verifyUser(video_data.token);
   video_tree = video_data.tree;
+  isadmin = verifyAdmin(video_data.token);
 
   if(!video_owner)
   {
@@ -192,7 +193,7 @@ app.post('/content', async function(req, res){
           .query('SELECT owner FROM videos WHERE id = $1',[video_id])
           .then(r => {
             client.release();
-            if(r.rows[0].owner == video_owner)
+            if(r.rows[0].owner == video_owner || isadmin == true)
             {
               queryDatabaseUpdateInsert(res,'UPDATE videos SET tree = $1 WHERE id = $2',[video_tree,video_id]);
             }
