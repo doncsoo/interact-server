@@ -24,6 +24,8 @@ CREATE TABLE users (
 
 INSERT INTO users (id, username, password, fullname, isadmin) VALUES (0, 'admin', 'admin', 'INTERACT Admin', true);
 INSERT INTO users (id, username, password, fullname, isadmin) VALUES (1, 'test', 'testpw', 'Test Test', false);
+INSERT INTO users (id, username, password, fullname, isadmin) VALUES (2, 'delete', 'delete', 'Test Test', false);
+INSERT INTO users (id, username, password, fullname, isadmin) VALUES (3, 'delete2', 'delete', 'Test Test', false);
 
 CREATE TABLE choice_data (
    username varchar(20),

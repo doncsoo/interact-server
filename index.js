@@ -358,7 +358,7 @@ app.post('/user-verify', async function(req, res){
             client.release();
             if(r.rows.length == 0)
             {
-              res.status(401).json({verified: false, error: "The following user doesn't exist"});
+              res.status(400).json({verified: false, error: "The following user doesn't exist"});
             }
             else if(password == r.rows[0].password)
             {
@@ -373,6 +373,46 @@ app.post('/user-verify', async function(req, res){
             res.status(500).send("ERROR");
           })
       })
+});
+
+app.delete('/user', async function(req, res){
+  user_data = req.body;
+  if(req.body === {}) res.status(400).send("Empty request body. Cancelling request.");
+  username = user_data.username;
+  token_verify = verifyUser(req.params.token);
+  isadmin = verifyAdmin(req.params.token);
+
+  if(!username || !token_verify) res.status(400).send("Bad Request");
+
+  await pool.connect()
+  .then(client => {
+   return client
+     .query('SELECT * FROM users WHERE username = $1',
+     [username])
+     .then(r => {
+       client.release();
+       if(r.rows.length == 0)
+       {
+         res.status(400).send("The following user doesn't exist.");
+         return;
+       }
+     })
+     .catch(err => {
+       client.release();
+       console.log(err.stack);
+       res.status(500).send("ERROR");
+       return;
+     })
+  })
+  
+  if(username == token_verify || isadmin == true)
+  {
+    queryDatabaseParameters(null,'DELETE FROM likes_data WHERE username = $1',[username]);
+    queryDatabaseParameters(null,'DELETE FROM choice_data WHERE username = $1',[username]);
+    queryDatabaseParameters(res,'DELETE FROM users WHERE username = $1',[username]);
+  }
+  else res.status(401).send("ERROR");
+
 });
 
 app.put('/register', async function(req, res){

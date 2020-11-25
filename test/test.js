@@ -363,7 +363,7 @@ describe("Test POST methods", () => {
                 .set('content-type', 'application/json')
                 .send({username: "anonymous", password: "123456"})
                 .end((err, res) => {
-                    res.should.have.status(401);
+                    res.should.have.status(400);
                     res.body.should.deep.equal({verified: false, error: "The following user doesn't exist"});
                     done();
                 });
@@ -445,6 +445,38 @@ describe("Test DELETE methods", () => {
                 .send({token: 6666666666, video_id: 0})
                 .end((err, res) => {
                     res.should.have.status(401);
+                    done();
+                });
+        });
+    });
+    describe("Test /user", () => {
+        it("Delete user - with correct token", (done) => {
+            chai.request(app)
+                .delete('/user')
+                .set('content-type', 'application/json')
+                .send({username: "delete", token: 2222222222})
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    done();
+                });
+        });
+        it("Delete user with invalid token", (done) => {
+            chai.request(app)
+                .delete('/user')
+                .set('content-type', 'application/json')
+                .send({username: "delete2", token: 2222222222})
+                .end((err, res) => {
+                    res.should.have.status(401);
+                    done();
+                });
+        });
+        it("Delete user - with admin privileges", (done) => {
+            chai.request(app)
+                .delete('/user')
+                .set('content-type', 'application/json')
+                .send({username: "delete", token: 2222222222})
+                .end((err, res) => {
+                    res.should.have.status(200);
                     done();
                 });
         });

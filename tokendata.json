@@ -1,1 +1,6 @@
-{"tokens":[{"username":"test","token":3252354545,"isadmin":false},{"username":"test2","token":1111111111,"isadmin":false},{"username":"admin","token":7342386958},{"username":"admin","token":3702714370},{"username":"admin","token":9687229332},{"username":"admin","token":1906984821},{"username":"admin","token":4134424329},{"username":"admin","token":10929567244},{"username":"admin","token":7663776556},{"username":"admin","token":5456684888,"isadmin":true},{"username":"test","token":6555707893,"isadmin":false}]}
+{"tokens":[
+    {"username":"test","token":3252354545,"isadmin":false},
+    {"username":"test2","token":1111111111,"isadmin":false},
+    {"username":"delete","token":2222222222,"isadmin":false},
+    {"username":"delete2","token":3333333333,"isadmin":false},
+    {"username":"admin","token":1023456789,"isadmin":true}]}
