@@ -428,6 +428,11 @@ app.put('/user', async function(req, res){
 
   if(!username || !password) res.status(400).send("ERROR");
 
+  if(username == "VALIDATING")
+  {
+    res.status(400).send("ERROR: This username is not permitted");
+  }
+
   //inserting new row
   await pool.connect()
        .then(client => {
@@ -507,6 +512,6 @@ app.post('/upload-choices', async function(req,res){
       });
 });
 
-//module.exports = app
+module.exports = app
 
 app.listen(process.env.PORT || 3000);

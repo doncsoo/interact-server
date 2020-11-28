@@ -235,10 +235,10 @@ describe("Test PUT methods", () => {
                 });
         });
     });
-    describe("Test /register", () => {
+    describe("Test /user", () => {
         it("Create an account", (done) => {
             chai.request(app)
-                .put('/register')
+                .put('/user')
                 .set('content-type', 'application/json')
                 .send({username: new_user, password: "test", fullname: "TESTING REGISTER"})
                 .end((err, res) => {
@@ -248,7 +248,7 @@ describe("Test PUT methods", () => {
         });
         it("Try create account with already existing username - invalid", (done) => {
             chai.request(app)
-                .put('/register')
+                .put('/user')
                 .set('content-type', 'application/json')
                 .send({username: "test", password: "test", fullname: "TESTING REGISTER"})
                 .end((err, res) => {
@@ -258,7 +258,7 @@ describe("Test PUT methods", () => {
         });
         it("Missing password - invalid", (done) => {
             chai.request(app)
-                .put('/register')
+                .put('/user')
                 .set('content-type', 'application/json')
                 .send({username: "somebody", fullname: "TESTING REGISTER"})
                 .end((err, res) => {
@@ -474,7 +474,7 @@ describe("Test DELETE methods", () => {
             chai.request(app)
                 .delete('/user')
                 .set('content-type', 'application/json')
-                .send({username: "delete", token: 2222222222})
+                .send({username: "delete2", token: 4444444444})
                 .end((err, res) => {
                     res.should.have.status(200);
                     done();
