@@ -335,7 +335,17 @@ app.delete('/like', async function(req, res){
 
 function addToken(tokenobj)
 {
-  token_data.tokens.push(tokenobj);
+  let replaced = false;
+  for(let entry of token_data.tokens)
+  {
+    if(entry.username == tokenobj.username)
+    {
+      entry.token = tokenobj.token;
+      entry.isadmin = tokenobj.isadmin;
+      replaced = true;
+    }
+  }
+  if(!replaced) token_data.tokens.push(tokenobj);
   fs.writeFile('tokendata.json', JSON.stringify(token_data), function() {console.log("stored")});
 }
 
