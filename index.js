@@ -233,11 +233,12 @@ app.delete('/content', async function(req,res){
             client.release();
             if(r.rows[0].owner == video_owner || isadmin == true)
             {
-              queryDatabaseParameters(null,'DELETE FROM videos WHERE id = $1',[video_id]);
-              //deleting id from likes_data table
-              queryDatabaseUpdateInsert(null,'UPDATE likes_data SET likes = array_remove(likes, $1)',[video_id]);
               //deleting corresponding choices
               queryDatabaseParameters(res,'DELETE FROM choice_data WHERE vidid = $1',[video_id]);
+              //deleting id from likes_data table
+              queryDatabaseUpdateInsert(null,'UPDATE likes_data SET likes = array_remove(likes, $1)',[video_id]);
+              //deleting video data finally
+              queryDatabaseParameters(null,'DELETE FROM videos WHERE id = $1',[video_id]);
             }
             else
             {
