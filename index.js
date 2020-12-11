@@ -161,7 +161,7 @@ app.put('/content', async function(req, res){
 
   if(!video_name) res.status(400).send("ERROR");
   
-  await queryDatabaseUpdateInsert(res,'INSERT INTO videos (id,name,description,owner,preview_id,prerequisite,tree) VALUES ((SELECT MAX(COALESCE(id,0)) + 1 FROM videos),$1,$2,$3,$4,$5,$6)',
+  await queryDatabaseUpdateInsert(res,'INSERT INTO videos (id,name,description,owner,preview_id,prerequisite,tree) VALUES ((SELECT GREATEST(MAX(id), -1) + 1 FROM videos),$1,$2,$3,$4,$5,$6)',
     [video_name,video_desc,video_owner,video_preview_id,video_prereq,video_tree]);
   
 });
@@ -448,7 +448,7 @@ app.put('/user', async function(req, res){
   await pool.connect()
        .then(client => {
         return client
-          .query('INSERT INTO users (id,username,password,fullname,isadmin) VALUES ((SELECT MAX(COALESCE(id,0)) + 1 FROM users),$1,$2,$3,FALSE)',
+          .query('INSERT INTO users (id,username,password,fullname,isadmin) VALUES ((SELECT GREATEST(MAX(id), -1) + 1 FROM users),$1,$2,$3,FALSE)',
           [username,password,fullname])
           .then(r => {
             client.release();
