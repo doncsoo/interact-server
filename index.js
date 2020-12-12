@@ -177,7 +177,7 @@ app.post('/content', async function(req, res){
 
   if(!video_owner)
   {
-    res.status(403).send("ERROR");
+    res.status(401).send("ERROR");
     return;
   }
 
@@ -199,7 +199,7 @@ app.post('/content', async function(req, res){
             }
             else
             {
-              res.status(403).send("ERROR");
+              res.status(401).send("ERROR");
             }
           })
           .catch(err => {
@@ -221,7 +221,7 @@ app.delete('/content', async function(req,res){
 
   if(!video_owner)
   {
-    res.status(403).send("ERROR");
+    res.status(401).send("ERROR");
     return;
   }
 
@@ -242,7 +242,7 @@ app.delete('/content', async function(req,res){
             }
             else
             {
-              res.status(403).send("ERROR");
+              res.status(401).send("ERROR");
             }
           })
           .catch(err => {
@@ -300,6 +300,12 @@ app.put('/like', async function(req, res){
     return;
   }
 
+  if(!video_id)
+  {
+    res.status(400).send("ERROR");
+    return;
+  }
+
   try
   {
     queryDatabaseUpdateInsert(null,'UPDATE likes_data SET likes = array_append(likes, $2) WHERE username = $1;',[username,video_id]);
@@ -352,7 +358,6 @@ function addToken(tokenobj)
 
 app.post('/user-verify', async function(req, res){
   user_data = req.body;
-  console.log(req.body);
   if(req.body === {}) res.status(400).send("Empty request body. Cancelling request.");
   username = user_data.username;
   password = user_data.password;
@@ -394,13 +399,12 @@ app.delete('/user', async function(req, res){
   token_verify = verifyUser(user_data.token);
   isadmin = verifyAdmin(user_data.token);
 
-  if(!username || !token_verify) res.status(400).send("Bad Request");
+  if(!username || !token_verify) res.status(400).send("ERROR: Invalid parameters");
 
   await pool.connect()
   .then(client => {
    return client
-     .query('SELECT * FROM users WHERE username = $1',
-     [username])
+     .query('SELECT * FROM users WHERE username = $1',[username])
      .then(r => {
        client.release();
        if(r.rows.length == 0)
