@@ -10,9 +10,9 @@ CREATE TABLE videos (
    tree json 
 );
 
-INSERT INTO videos (id, name, description, owner, tree) VALUES (0, 'Test', 'test video', 'test', '{note: "This is only used for REST API testing purposes."}');
+INSERT INTO videos (id, name, description, owner, tree) VALUES (0, 'Test', 'test video', 'test', '{"note": "This is only used for REST API testing purposes."}');
 INSERT INTO videos (id, name, description, owner) VALUES (1, 'Content', 'I hope you will enjoy.', 'jason');
-INSERT INTO videos (id, name, description, owner) VALUES (0, 'Interactive', 'content', 'millie');
+INSERT INTO videos (id, name, description, owner) VALUES (2, 'Interactive', 'content', 'millie');
 
 CREATE TABLE users (
    id integer NOT NULL,
@@ -30,7 +30,7 @@ INSERT INTO users (id, username, password, fullname, isadmin) VALUES (3, 'delete
 CREATE TABLE choice_data (
    username varchar(20),
    vidid integer,
-   choices varchar(50)[] DEFAULT '{}'
+   choices varchar(20)[] DEFAULT '{}'
 );
 
 CREATE TABLE likes_data (

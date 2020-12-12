@@ -287,7 +287,7 @@ describe("Test POST methods", () => {
                 .set('content-type', 'application/json')
                 .send({id: 0, token: 1111111111, tree: {title: "test video", start_video: null, videos: []}})
                 .end((err, res) => {
-                    res.should.have.status(403);
+                    res.should.have.status(401);
                     done();
                 });
         });
@@ -422,7 +422,7 @@ describe("Test DELETE methods", () => {
                 .set('content-type', 'application/json')
                 .send({id: 0, token: 1111111111})
                 .end((err, res) => {
-                    res.should.have.status(403);
+                    res.should.have.status(401);
                     done();
                 });
         });
