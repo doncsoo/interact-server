@@ -285,7 +285,7 @@ app.get('/get-preview/:id', async function(req,res){
     offsets: [0]
   });
   res.sendFile(path.join(__dirname,'./preview-' + req.params.id + '.png'));
-  fs.unlink('./preview-' + req.params.id + '.png');
+  fs.unlink('./preview-' + req.params.id + '.png', (err) => { if(err) throw err; });
 });
 
 app.put('/like', async function(req, res){
