@@ -300,7 +300,7 @@ app.put('/like', async function(req, res){
     return;
   }
 
-  if(!video_id)
+  if(video_id == undefined)
   {
     res.status(400).send("ERROR");
     return;
