@@ -13,6 +13,7 @@ app.use(bodyParser.json());
 
 const fs = require('fs');
 const token_data = require('./tokendata.json');
+const { SSL_OP_EPHEMERAL_RSA } = require('constants');
 
 ///TESTING - PLEASE FILL THESE VARIABLES WITH LOCAL DATABASE CREDENTIALS
 const test_username = "postgres";
@@ -444,10 +445,12 @@ app.delete('/user', async function(req, res){
         return;
       })
     })
-    await queryDatabaseParameters(null,'DELETE FROM likes_data WHERE username = $1',[username]);
-    await queryDatabaseParameters(null,'DELETE FROM choice_data WHERE username = $1',[username]);
-    await queryDatabaseParameters(null,'DELETE FROM videos WHERE owner = $1',[username]);
-    await queryDatabaseParameters(res,'DELETE FROM users WHERE username = $1',[username]);
+    queryDatabaseParameters(null,'DELETE FROM likes_data WHERE username = $1',[username]);
+    queryDatabaseParameters(null,'DELETE FROM choice_data WHERE username = $1',[username]);
+    setTimeout(async function() {
+      queryDatabaseParameters(null,'DELETE FROM videos WHERE owner = $1',[username]);
+      queryDatabaseParameters(res,'DELETE FROM users WHERE username = $1',[username]);
+    },1500);
   }
   else res.status(401).send("ERROR");
 
