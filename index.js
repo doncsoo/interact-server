@@ -428,7 +428,7 @@ app.delete('/user', async function(req, res){
     .then(client => {
     return client
       .query('SELECT id FROM videos WHERE owner = $1',[username])
-      .then(r => {
+      .then(async function(r) {
         client.release();
         for(let row of r.rows)
         {
