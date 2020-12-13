@@ -434,7 +434,7 @@ app.delete('/user', async function(req, res){
         {
           console.log(r.rows);
           await queryDatabaseParameters(null,'DELETE FROM choice_data WHERE vidid = $1',[row.id]);
-          await queryDatabaseUpdateInsert(null,'UPDATE likes_data SET likes = array_remove(likes, $1)',[row.id]);
+          await queryDatabaseParameters(null,'UPDATE likes_data SET likes = array_remove(likes, $1)',[row.id]);
         }
       })
       .catch(err => {
