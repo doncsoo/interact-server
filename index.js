@@ -423,6 +423,26 @@ app.delete('/user', async function(req, res){
   
   if(username == token_verify || isadmin == true)
   {
+    //We must delete all video related data as well
+    await pool.connect()
+    .then(client => {
+    return client
+      .query('SELECT id FROM videos WHERE owner = $1',[username])
+      .then(r => {
+        client.release();
+        for(let row of r.rows)
+        {
+          queryDatabaseParameters(null,'DELETE FROM choice_data WHERE vidid = $1',[row.id]);
+          queryDatabaseUpdateInsert(null,'UPDATE likes_data SET likes = array_remove(likes, $1)',[row.id]);
+        }
+      })
+      .catch(err => {
+        client.release();
+        console.log(err.stack);
+        res.status(500).send("ERROR");
+        return;
+      })
+    })
     queryDatabaseParameters(null,'DELETE FROM likes_data WHERE username = $1',[username]);
     queryDatabaseParameters(null,'DELETE FROM choice_data WHERE username = $1',[username]);
     queryDatabaseParameters(null,'DELETE FROM videos WHERE owner = $1',[username]);
