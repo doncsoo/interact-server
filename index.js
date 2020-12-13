@@ -432,8 +432,8 @@ app.delete('/user', async function(req, res){
         client.release();
         for(let row of r.rows)
         {
-          queryDatabaseParameters(null,'DELETE FROM choice_data WHERE vidid = $1',[row.id]);
-          queryDatabaseUpdateInsert(null,'UPDATE likes_data SET likes = array_remove(likes, $1)',[row.id]);
+          await queryDatabaseParameters(null,'DELETE FROM choice_data WHERE vidid = $1',[row.id]);
+          await queryDatabaseUpdateInsert(null,'UPDATE likes_data SET likes = array_remove(likes, $1)',[row.id]);
         }
       })
       .catch(err => {
@@ -443,10 +443,10 @@ app.delete('/user', async function(req, res){
         return;
       })
     })
-    queryDatabaseParameters(null,'DELETE FROM likes_data WHERE username = $1',[username]);
-    queryDatabaseParameters(null,'DELETE FROM choice_data WHERE username = $1',[username]);
-    queryDatabaseParameters(null,'DELETE FROM videos WHERE owner = $1',[username]);
-    queryDatabaseParameters(res,'DELETE FROM users WHERE username = $1',[username]);
+    await queryDatabaseParameters(null,'DELETE FROM likes_data WHERE username = $1',[username]);
+    await queryDatabaseParameters(null,'DELETE FROM choice_data WHERE username = $1',[username]);
+    await queryDatabaseParameters(null,'DELETE FROM videos WHERE owner = $1',[username]);
+    await queryDatabaseParameters(res,'DELETE FROM users WHERE username = $1',[username]);
   }
   else res.status(401).send("ERROR");
 
